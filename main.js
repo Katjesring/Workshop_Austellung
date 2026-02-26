@@ -7,6 +7,8 @@ let renderer, controls;
 let contentContainer = document.getElementById('content-container');
 let textContainer = document.getElementById('text-container');
 let overviewButton = document.getElementById('overview-button');
+let overviewTitle = document.getElementById('overview-title');
+let overviewInfo = document.getElementById('overview-info');
 
 let sequence = [];
 let platform;
@@ -39,7 +41,7 @@ async function init() {
     createOverviewScene();
 
     await readJSON();
-    textContainer.textContent = sequence[currentSequenceObjectID].text;
+    setSceneText(sequence[currentSequenceObjectID].text);
 
     controls = new OrbitControls(sequence[currentSequenceObjectID].camera, renderer.domElement);
     controls.enableDamping = true;
@@ -48,9 +50,50 @@ async function init() {
     controls.minDistance = 10;  // Minimale Zoom-Distanz (wie nah darf man ran)
     controls.maxDistance = 100; // Maximale Zoom-Distanz (wie weit darf man raus)
 
+    // Zeige Überschrift und Info beim Start (da wir in der Übersichtsszene starten)
+    overviewTitle.style.display = 'block';
+    overviewInfo.style.display = 'block';
+    overviewButton.style.display = 'none';
+
     // Click-Handler für Übersicht-Button
     overviewButton.addEventListener('click', showOverview);
 
+    // Resize-Handler für dynamische Textgroesse
+    window.addEventListener('resize', onWindowResize);
+
+}
+
+function setSceneText(text) {
+    textContainer.textContent = text || '';
+    requestAnimationFrame(fitTextToContainer);
+}
+
+function fitTextToContainer() {
+    const maxSize = 120;
+    const minSize = 14;
+    const container = textContainer;
+    if (!container) return;
+
+    let size = maxSize;
+    container.style.fontSize = `${size}px`;
+    container.style.lineHeight = '1.1';
+
+    while (size > minSize && (container.scrollHeight > container.clientHeight || container.scrollWidth > container.clientWidth)) {
+        size -= 2;
+        container.style.fontSize = `${size}px`;
+    }
+}
+
+function onWindowResize() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const currentCamera = sequence[currentSequenceObjectID]?.camera;
+    if (currentCamera && currentCamera.isPerspectiveCamera) {
+        currentCamera.aspect = window.innerWidth / window.innerHeight;
+        currentCamera.updateProjectionMatrix();
+    }
+
+    fitTextToContainer();
 }
 
 // Erstelle die Übersichtsszene mit Navigation zu anderen Szenen
@@ -73,9 +116,12 @@ function createOverviewScene() {
 // Zeige die Übersichtsszene an
 function showOverview() {
     currentSequenceObjectID = overviewSceneID;
-    textContainer.textContent = sequence[currentSequenceObjectID].text;
+    setSceneText(sequence[currentSequenceObjectID].text);
     controls.object = sequence[currentSequenceObjectID].camera;
     updateOverviewButtons();
+    overviewTitle.style.display = 'block';
+    overviewButton.style.display = 'none';
+    overviewInfo.style.display = 'block';
     lastSwitch = clock.getElapsedTime();
 }
 
@@ -165,15 +211,24 @@ function updateOverviewButtons() {
             buttonContent.style.height = '100%';
             
             // Erstelle Preview-Canvas
+            let previewWrapper = document.createElement('div');
+            previewWrapper.className = 'preview-wrapper';
+
             let previewCanvas = document.createElement('canvas');
-            previewCanvas.width = 220;
-            previewCanvas.height = 220;
-            previewCanvas.style.borderRadius = '5px';
+            previewCanvas.width = 300;
+            previewCanvas.height = 300;
+            previewCanvas.style.borderRadius = '35px';
+
+            let previewSpinner = document.createElement('div');
+            previewSpinner.className = 'preview-spinner';
             
             // Lade Modell-Preview
-            createModelPreview(previewCanvas, sequence[i].meshRef);
+            createModelPreview(previewCanvas, sequence[i].meshRef, previewSpinner);
+
+            previewWrapper.appendChild(previewCanvas);
+            previewWrapper.appendChild(previewSpinner);
             
-            buttonContent.appendChild(previewCanvas);
+            buttonContent.appendChild(previewWrapper);
             button.appendChild(buttonContent);
             
             button.addEventListener('click', () => {
@@ -185,9 +240,12 @@ function updateOverviewButtons() {
                 activePreviewScenes = [];
                 
                 currentSequenceObjectID = i;
-                textContainer.textContent = sequence[currentSequenceObjectID].text;
+                setSceneText(sequence[currentSequenceObjectID].text);
                 controls.object = sequence[currentSequenceObjectID].camera;
                 buttonGrid.remove();  // Entferne die Buttons
+                overviewTitle.style.display = 'none';  // Verstecke Überschrift
+                overviewInfo.style.display = 'none';  // Verstecke Info-Text
+                overviewButton.style.display = 'block';  // Zeige Home-Button
                 lastSwitch = clock.getElapsedTime();
             });
             buttonGrid.appendChild(button);
@@ -198,9 +256,9 @@ function updateOverviewButtons() {
 }
 
 // Erstelle einen 3D-Preview für ein Modell
-function createModelPreview(canvas, meshRef) {
+function createModelPreview(canvas, meshRef, spinner) {
     const previewRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    previewRenderer.setSize(220, 220);
+    previewRenderer.setSize(300, 300);
     previewRenderer.setClearColor(0x000000, 0.2);
     
     const previewScene = new THREE.Scene();
@@ -223,12 +281,18 @@ function createModelPreview(canvas, meshRef) {
     let isStillRendering = true;
     
     // Lade das Modell
+    const hideSpinner = () => {
+        if (spinner) spinner.style.display = 'none';
+    };
+
     gltfLoader.load(meshRef, (gltf) => {
         if (!isStillRendering) return;  // Abbruch wenn bereits aufgeräumt
         
         let mesh = gltf.scene;
         mesh.scale.set(2.2, 2.2, 2.2);
         previewScene.add(mesh);
+
+        hideSpinner();
         
         // Zentere das Modell
         const box = new THREE.Box3().setFromObject(mesh);
@@ -250,6 +314,8 @@ function createModelPreview(canvas, meshRef) {
             }
         }
         animatePreview();
+    }, undefined, () => {
+        hideSpinner();
     });
     
     // Speichere Funktion zum Stoppen
@@ -267,7 +333,7 @@ function generateScene(sceneObj) {
     let newScene = new THREE.Scene();
 
     let newCamera = new THREE.PerspectiveCamera(1, window.innerWidth / window.innerHeight, 0.1, 10000);
-    newCamera.position.set(0, 4, -55);
+    newCamera.position.set(0, 4, -80);
 
     newScene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
@@ -276,7 +342,7 @@ function generateScene(sceneObj) {
     gltfLoader.load("/mesh/platform.glb", (gltf) => {
         platform = gltf.scene;
         platform.scale.set(0.5, 0.5, 0.5);  // Scale the model
-        platform.position.set(0, -0.5, 0);  // Position the model
+        platform.position.set(0, -0.6, 0);  // Position the model
         newScene.add(platform);
     });
 
@@ -284,7 +350,7 @@ function generateScene(sceneObj) {
     gltfLoader.load(sceneObj.meshRef, (gltf) => {
         newMesh = gltf.scene;
         newMesh.scale.set(1, 1, 1);  // Scale the model
-        newMesh.position.set(0, -0.375, 0);  // Position the model
+        newMesh.position.set(0, -0.475, 0);  // Position the model
         newScene.add(newMesh);
     });
 
@@ -314,12 +380,17 @@ function showNextScene() {
     }
     
     currentSequenceObjectID = nextID;
-    textContainer.textContent = sequence[currentSequenceObjectID].text;
+    setSceneText(sequence[currentSequenceObjectID].text);
     controls.object = sequence[currentSequenceObjectID].camera;
     
     // Entferne Übersichts-Buttons falls sichtbar
     let buttonGrid = document.querySelector('.button-grid');
     if (buttonGrid) buttonGrid.remove();
+    
+    // Verstecke Überschrift und Info, zeige Home-Button
+    overviewTitle.style.display = 'none';
+    overviewInfo.style.display = 'none';
+    overviewButton.style.display = 'block';
 }
 
 async function readJSON() {

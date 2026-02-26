@@ -9,10 +9,19 @@ body {
     z-index: -1;
     font-size: 80px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    top:0px;
-    bottom:0px;
-    left:10px;
-    right:10px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    white-space: normal;
+    word-break: break-word;
+    overflow: hidden;
 }
 
 #overview-button {
@@ -35,6 +44,34 @@ body {
     background-color: #555;
 }
 
+#overview-title {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    color: black;
+    font-size: 80px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    margin: 0;
+    display: block;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+#overview-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    max-width: 400px;
+    color: black;
+    font-size: 16px;
+    line-height: 1.5;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    display: none;
+    text-align: right;
+}
+
 .button-grid {
     position: absolute;
     top: 50%;
@@ -42,18 +79,33 @@ body {
     transform: translate(-50%, -50%);
     z-index: 50;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    width: 90%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 50px;
+    max-width: 1400px;
+    width: min(95vw, 1400px);
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-content: start;
+    padding: 10px 20px 30px;
+    box-sizing: border-box;
+}
+
+.button-grid {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.button-grid::-webkit-scrollbar {
+    display: none;
 }
 
 .scene-button {
-    padding: 10px;
-    background-color: #444;
+    padding: 0;
+    background-color: transparent;
     color: white;
-    border: 2px solid #666;
-    border-radius: 8px;
+    border: none;
+    border-radius: 35px;
     cursor: pointer;
     transition: all 0.3s;
     text-align: center;
@@ -61,13 +113,42 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 220px;
-    height: 220px;
+    width: 300px;
+    height: 300px;
     aspect-ratio: 1;
 }
 
 .scene-button:hover {
-    background-color: #666;
-    border-color: #999;
     transform: scale(1.05);
+}
+
+.preview-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 35px;
+    overflow: hidden;
+}
+
+.preview-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+    border: 3px solid rgba(0, 0, 0, 0.2);
+    border-top-color: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    animation: preview-spin 0.9s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes preview-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
