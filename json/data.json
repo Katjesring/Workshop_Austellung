@@ -2,23 +2,39 @@
     "objects": [
         {
             "meshRef": "/mesh/mesh0.glb",
+            "title": "WS06.03",
             "text": "",
             "background": "/background/background1.jpg",
+            "meshCaption": {
+                "heading": "Reflektieren - GW04",
+                "body": "Welche Rolle könnte Arbeit oder ein Beruf in deinem zukünftigen Leben spielen? Wie stellst du dir deine Arbeit in Zukunft vor? Welche Tätigkeiten würdest du gerne ausüben, wenn es kein Geldsystem gäbe?"
+            },
             "imageBild": "/images_bild/Bild1.jpg",
-            "imageText": "/images_text/Text1.jpg"
+            "imageBildCaption": {
+                "heading": "Reflektieren - GW04",
+                "body": "Welche Rolle könnte Arbeit oder ein Beruf in deinem zukünftigen Leben spielen? Wie stellst du dir deine Arbeit in Zukunft vor? Welche Tätigkeiten würdest du gerne ausüben, wenn es kein Geldsystem gäbe?"
+            },
+            "imageText": "/images_text/Text3.jpeg",
+            "imageTextCaption": {
+                "heading": "Reflektieren - GW04",
+                "body": "Welche Rolle könnte Arbeit oder ein Beruf in deinem zukünftigen Leben spielen? Wie stellst du dir deine Arbeit in Zukunft vor? Welche Tätigkeiten würdest du gerne ausüben, wenn es kein Geldsystem gäbe?"
+            }
         },
         {
             "meshRef": "/mesh/mesh1.glb",
+            "title": "WS06.04",
             "text": "",
             "background": "/background/background2.jpg"
         },
         {
             "meshRef": "/mesh/mesh2.glb",
+            "title": "WS06.05",
             "text": "",
             "background": "/background/background3.jpg"
         },
         {
             "meshRef": "/mesh/mesh2.glb",
+            "title": "WS06.06",
             "text": "",
             "background": "/background/background4.jpg"
         }

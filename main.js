@@ -9,7 +9,11 @@ let textContainer = document.getElementById('text-container');
 let overviewButton = document.getElementById('overview-button');
 let overviewTitle = document.getElementById('overview-title');
 let overviewInfo = document.getElementById('overview-info');
+let arrowLeft = document.getElementById('arrow-left');
+let arrowRight = document.getElementById('arrow-right');
 let backgroundElement = null;  // Element für Background-Bilder
+let imageOverlay = null;       // Element für imageBild / imageText Anzeige
+let currentViewIndex = 0;      // 0=mesh, 1=imageBild, 2=imageText
 
 let sequence = [];
 let platform;
@@ -21,8 +25,8 @@ let activePreviewScenes = [];  // Speichert aktive Preview-Szenen zum Bereinigen
 
 const gltfLoader = new GLTFLoader();
 
-const clock = new THREE.Clock();
-let lastSwitch = 0;
+// const clock = new THREE.Clock();
+// let lastSwitch = 0;
 
 // initialize everything and start the render loop
 await init();
@@ -58,6 +62,10 @@ async function init() {
 
     // Click-Handler für Übersicht-Button
     overviewButton.addEventListener('click', showOverview);
+
+    // Click-Handler für Pfeile
+    arrowLeft.addEventListener('click', () => showView(currentViewIndex - 1));
+    arrowRight.addEventListener('click', () => showView(currentViewIndex + 1));
 
     // Resize-Handler für dynamische Textgroesse
     window.addEventListener('resize', onWindowResize);
@@ -114,17 +122,36 @@ function fitTextToContainer() {
 }
 
 function onWindowResize() {
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (currentSequenceObjectID === overviewSceneID) {
+        resizeRendererFull();
+    } else if (currentViewIndex === 0 && imageOverlay) {
+        const imageBox = imageOverlay.querySelector('#image-box');
+        if (imageBox) resizeRendererToBox(imageBox);
+    }
+    fitTextToContainer();
+}
 
-    // Aktualisiere Aspect Ratio für ALLE Kameras, nicht nur die aktuelle
-    sequence.forEach((sceneObj) => {
-        if (sceneObj.camera && sceneObj.camera.isPerspectiveCamera) {
-            sceneObj.camera.aspect = window.innerWidth / window.innerHeight;
-            sceneObj.camera.updateProjectionMatrix();
+function resizeRendererFull() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    sequence.forEach(s => {
+        if (s.camera && s.camera.isPerspectiveCamera) {
+            s.camera.aspect = window.innerWidth / window.innerHeight;
+            s.camera.updateProjectionMatrix();
         }
     });
+}
 
-    fitTextToContainer();
+function resizeRendererToBox(imageBox) {
+    const rect = imageBox.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+        renderer.setSize(rect.width, rect.height);
+        sequence.forEach(s => {
+            if (s.camera && s.camera.isPerspectiveCamera) {
+                s.camera.aspect = rect.width / rect.height;
+                s.camera.updateProjectionMatrix();
+            }
+        });
+    }
 }
 
 // Erstelle die Übersichtsszene mit Navigation zu anderen Szenen
@@ -146,6 +173,14 @@ function createOverviewScene() {
 
 // Zeige die Übersichtsszene an
 function showOverview() {
+    // Canvas zurück in den Body für Vollbild-Übersicht
+    document.body.appendChild(contentContainer);
+    contentContainer.style.position = '';
+    contentContainer.style.inset = '';
+    contentContainer.style.zIndex = '';
+    contentContainer.style.display = 'block';
+    resizeRendererFull();
+
     currentSequenceObjectID = overviewSceneID;
     setSceneText(sequence[currentSequenceObjectID].text);
     setSceneBackground(null);  // Keine Background auf der Übersichtsseite
@@ -154,7 +189,108 @@ function showOverview() {
     overviewTitle.style.display = 'block';
     overviewButton.style.display = 'none';
     overviewInfo.style.display = 'block';
-    lastSwitch = clock.getElapsedTime();
+    arrowLeft.style.display = 'none';
+    arrowRight.style.display = 'none';
+    if (imageOverlay) imageOverlay.style.display = 'none';
+}
+
+// Gibt die verfügbaren Views für eine Szene zurück
+function getViewsForScene(sceneObj) {
+    let views = ['mesh'];
+    if (sceneObj && sceneObj.imageBild) views.push('imageBild');
+    if (sceneObj && sceneObj.imageText) views.push('imageText');
+    return views;
+}
+
+// Schaltet auf den angegebenen View-Index um (zyklisch)
+function showView(index) {
+    const sceneObj = sequence[currentSequenceObjectID];
+    const views = getViewsForScene(sceneObj);
+    currentViewIndex = ((index % views.length) + views.length) % views.length;
+    const view = views[currentViewIndex];
+
+    if (!imageOverlay) {
+        imageOverlay = document.createElement('div');
+        imageOverlay.id = 'image-overlay';
+        const imageTitle = document.createElement('div');
+        imageTitle.id = 'image-title';
+        const imageBox = document.createElement('div');
+        imageBox.id = 'image-box';
+        const imageCaption = document.createElement('div');
+        imageCaption.id = 'image-caption';
+        imageCaption.innerHTML = '<h2 id="caption-heading"></h2><p id="caption-body"></p>';
+        imageBox.appendChild(arrowLeft);
+        imageBox.appendChild(arrowRight);
+        imageOverlay.appendChild(imageTitle);
+        imageOverlay.appendChild(imageBox);
+        imageOverlay.appendChild(imageCaption);
+        document.body.appendChild(imageOverlay);
+    }
+
+    const imageTitle = imageOverlay.querySelector('#image-title');
+    const imageBox = imageOverlay.querySelector('#image-box');
+    const imageCaption = imageOverlay.querySelector('#image-caption');
+    imageOverlay.style.display = 'flex';
+
+    // Überschrift setzen
+    imageTitle.innerHTML = sceneObj.title ? `<strong>ZEITKAPSEL</strong> – ${sceneObj.title}` : '<strong>ZEITKAPSEL</strong>';
+
+    // Caption befüllen und ein-/ausblenden
+    const captionKey = view === 'mesh' ? 'meshCaption' : view === 'imageBild' ? 'imageBildCaption' : view === 'imageText' ? 'imageTextCaption' : null;
+    if (captionKey && sceneObj[captionKey]) {
+        imageOverlay.querySelector('#caption-heading').textContent = sceneObj[captionKey].heading;
+        imageOverlay.querySelector('#caption-body').textContent = sceneObj[captionKey].body;
+        imageCaption.style.display = 'block';
+    } else {
+        imageCaption.style.display = 'none';
+    }
+
+    // Img-Element entfernen falls vorhanden (wird nur für Bildansichten gebraucht)
+    const existingImg = imageBox.querySelector('img.view-image');
+    if (existingImg) existingImg.remove();
+
+    // Feste Zielabmessung für Unterseiten-Kasten: 5712 x 3213
+    imageBox.style.width = 'min(5712px, calc(100vw - 80px))';
+    imageBox.style.aspectRatio = '5712 / 3213';
+
+    if (view === 'mesh') {
+        imageBox.style.backgroundImage = '';
+        // Hintergrundbild direkt auf die Box setzen
+        const bg = sequence[currentSequenceObjectID].background;
+        imageBox.style.backgroundImage = bg ? `url('${bg}')` : '';
+        imageBox.style.backgroundSize = 'cover';
+        imageBox.style.backgroundPosition = 'center';
+        // Canvas in die Box verschieben
+        imageBox.appendChild(contentContainer);
+        contentContainer.style.position = 'absolute';
+        contentContainer.style.inset = '0';
+        contentContainer.style.zIndex = '1';
+        contentContainer.style.display = 'block';
+        // Renderer nach Layout-Berechnung auf Box-Größe anpassen
+        requestAnimationFrame(() => resizeRendererToBox(imageBox));
+    } else {
+        // Canvas aus der Box herausverschieben und verstecken
+        document.body.appendChild(contentContainer);
+        contentContainer.style.display = 'none';
+        imageBox.style.backgroundImage = '';
+        const imgEl = document.createElement('img');
+        imgEl.className = 'view-image';
+        imgEl.src = sceneObj[view];
+        imageBox.appendChild(imgEl);
+    }
+}
+
+// Pfeile ein-/ausblenden je nach verfügbaren Views
+function updateArrows() {
+    const sceneObj = sequence[currentSequenceObjectID];
+    const views = getViewsForScene(sceneObj);
+    if (currentSequenceObjectID !== overviewSceneID && views.length > 1) {
+        arrowLeft.style.display = 'block';
+        arrowRight.style.display = 'block';
+    } else {
+        arrowLeft.style.display = 'none';
+        arrowRight.style.display = 'none';
+    }
 }
 
 // Hilfsfunktion zum rekursiven Freigeben von Ressourcen
@@ -282,7 +418,9 @@ function updateOverviewButtons() {
                 overviewTitle.style.display = 'none';  // Verstecke Überschrift
                 overviewInfo.style.display = 'none';  // Verstecke Info-Text
                 overviewButton.style.display = 'block';  // Zeige Home-Button
-                lastSwitch = clock.getElapsedTime();
+                currentViewIndex = 0;
+                updateArrows();
+                showView(0);
             });
             buttonGrid.appendChild(button);
         }
@@ -410,33 +548,35 @@ function generateScene(sceneObj) {
         camera: newCamera,
         text: sceneObj.text,
         meshRef: sceneObj.meshRef,
-        background: sceneObj.background
+        background: sceneObj.background,
+        title: sceneObj.title,
+        meshCaption: sceneObj.meshCaption,
+        imageBild: sceneObj.imageBild,
+        imageBildCaption: sceneObj.imageBildCaption,
+        imageText: sceneObj.imageText,
+        imageTextCaption: sceneObj.imageTextCaption
     }
 
     sequence.push(newSequenceObj);
 }
 
-function showNextScene() {
-    // Überspringe die Übersichtsszene bei der automatischen Rotation
-    let nextID = currentSequenceObjectID + 1;
-    if (nextID >= sequence.length || nextID === overviewSceneID) {
-        nextID = 1;  // Gehe zu Scene 1 (erste echte 3D-Scene)
-    }
-    
-    currentSequenceObjectID = nextID;
-    setSceneText(sequence[currentSequenceObjectID].text);
-    setSceneBackground(sequence[currentSequenceObjectID].background);
-    controls.object = sequence[currentSequenceObjectID].camera;
-    
-    // Entferne Übersichts-Buttons falls sichtbar
-    let buttonGrid = document.querySelector('.button-grid');
-    if (buttonGrid) buttonGrid.remove();
-    
-    // Verstecke Überschrift und Info, zeige Home-Button
-    overviewTitle.style.display = 'none';
-    overviewInfo.style.display = 'none';
-    overviewButton.style.display = 'block';
-}
+
+// function showNextScene() {
+//     // Überspringe die Übersichtsszene bei der automatischen Rotation
+//     let nextID = currentSequenceObjectID + 1;
+//     if (nextID >= sequence.length || nextID === overviewSceneID) {
+//         nextID = 1;  // Gehe zu Scene 1 (erste echte 3D-Scene)
+//     }
+//     currentSequenceObjectID = nextID;
+//     setSceneText(sequence[currentSequenceObjectID].text);
+//     setSceneBackground(sequence[currentSequenceObjectID].background);
+//     controls.object = sequence[currentSequenceObjectID].camera;
+//     let buttonGrid = document.querySelector('.button-grid');
+//     if (buttonGrid) buttonGrid.remove();
+//     overviewTitle.style.display = 'none';
+//     overviewInfo.style.display = 'none';
+//     overviewButton.style.display = 'block';
+// }
 
 async function readJSON() {
     try {
@@ -470,12 +610,12 @@ async function readJSON() {
 function animate() {
     controls.update();
 
-    const elapsed = clock.getElapsedTime();
-    // Auto-rotate nur wenn man nicht in der Übersichtsszene ist
-    if (elapsed - lastSwitch >= 12 && currentSequenceObjectID !== overviewSceneID) {
-        showNextScene();
-        lastSwitch = elapsed;
-    }
+    // const elapsed = clock.getElapsedTime();
+    // // Auto-rotate nur wenn man nicht in der Übersichtsszene ist
+    // if (elapsed - lastSwitch >= 12 && currentSequenceObjectID !== overviewSceneID) {
+    //     showNextScene();
+    //     lastSwitch = elapsed;
+    // }
 
     renderer.render(sequence[currentSequenceObjectID].scene, sequence[currentSequenceObjectID].camera);
 }
