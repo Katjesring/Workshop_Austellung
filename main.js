@@ -9,6 +9,7 @@ let textContainer = document.getElementById('text-container');
 let overviewButton = document.getElementById('overview-button');
 let overviewTitle = document.getElementById('overview-title');
 let overviewInfo = document.getElementById('overview-info');
+let backgroundElement = null;  // Element für Background-Bilder
 
 let sequence = [];
 let platform;
@@ -60,12 +61,40 @@ async function init() {
 
     // Resize-Handler für dynamische Textgroesse
     window.addEventListener('resize', onWindowResize);
-
 }
 
 function setSceneText(text) {
     textContainer.textContent = text || '';
     requestAnimationFrame(fitTextToContainer);
+}
+
+function setSceneBackground(backgroundPath) {
+    // Erstelle Background-Element falls nicht vorhanden
+    if (!backgroundElement) {
+        backgroundElement = document.createElement('div');
+        backgroundElement.id = 'background-image';
+        backgroundElement.style.position = 'fixed';
+        backgroundElement.style.top = '0';
+        backgroundElement.style.left = '0';
+        backgroundElement.style.width = '100%';
+        backgroundElement.style.height = '100%';
+        backgroundElement.style.backgroundSize = 'cover';
+        backgroundElement.style.backgroundPosition = 'center';
+        backgroundElement.style.backgroundRepeat = 'no-repeat';
+        backgroundElement.style.zIndex = '-1';
+        backgroundElement.style.transition = 'opacity 0.5s ease-in-out';
+        document.body.appendChild(backgroundElement);
+    }
+
+    // Setze das neue Background-Bild
+    if (backgroundPath) {
+        backgroundElement.style.backgroundImage = `url('${backgroundPath}')`;
+        backgroundElement.style.opacity = '1';
+        backgroundElement.style.pointerEvents = 'none';
+    } else {
+        backgroundElement.style.opacity = '0';
+        backgroundElement.style.pointerEvents = 'none';
+    }
 }
 
 function fitTextToContainer() {
@@ -87,11 +116,13 @@ function fitTextToContainer() {
 function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const currentCamera = sequence[currentSequenceObjectID]?.camera;
-    if (currentCamera && currentCamera.isPerspectiveCamera) {
-        currentCamera.aspect = window.innerWidth / window.innerHeight;
-        currentCamera.updateProjectionMatrix();
-    }
+    // Aktualisiere Aspect Ratio für ALLE Kameras, nicht nur die aktuelle
+    sequence.forEach((sceneObj) => {
+        if (sceneObj.camera && sceneObj.camera.isPerspectiveCamera) {
+            sceneObj.camera.aspect = window.innerWidth / window.innerHeight;
+            sceneObj.camera.updateProjectionMatrix();
+        }
+    });
 
     fitTextToContainer();
 }
@@ -117,6 +148,7 @@ function createOverviewScene() {
 function showOverview() {
     currentSequenceObjectID = overviewSceneID;
     setSceneText(sequence[currentSequenceObjectID].text);
+    setSceneBackground(null);  // Keine Background auf der Übersichtsseite
     controls.object = sequence[currentSequenceObjectID].camera;
     updateOverviewButtons();
     overviewTitle.style.display = 'block';
@@ -144,7 +176,7 @@ function disposeScene(scene) {
 }
 
 function disposeMaterial(material) {
-    if (material.map) material.map.dispose();
+
     if (material.lightMap) material.lightMap.dispose();
     if (material.bumpMap) material.bumpMap.dispose();
     if (material.normalMap) material.normalMap.dispose();
@@ -155,6 +187,7 @@ function disposeMaterial(material) {
 
 // Erstelle oder aktualisiere die Navigationbuttons für die Übersichtsszene
 function updateOverviewButtons() {
+    console.log('updateOverviewButtons called, sequence.length:', sequence.length);
     // ZUERST: Stoppe alle Preview-Rendering
     activePreviewRenderers.forEach((renderer) => {
         if (renderer.stopRendering) {
@@ -189,6 +222,7 @@ function updateOverviewButtons() {
     
     // Gebe dem Browser Zeit zum Aufräumen
     setTimeout(() => {
+        console.log('setTimeout in updateOverviewButtons, creating buttons...');
         // Entferne alte Button-Grid falls vorhanden
         let oldGrid = document.querySelector('.button-grid');
         if (oldGrid) oldGrid.remove();
@@ -196,6 +230,7 @@ function updateOverviewButtons() {
         // Erstelle neue Button-Grid
         let buttonGrid = document.createElement('div');
         buttonGrid.className = 'button-grid';
+        console.log('Button grid created, adding buttons for', sequence.length - 1, 'scenes');
 
         // Erstelle Buttons für alle Nicht-Übersichts-Szenen
         for (let i = 1; i < sequence.length; i++) {
@@ -222,8 +257,8 @@ function updateOverviewButtons() {
             let previewSpinner = document.createElement('div');
             previewSpinner.className = 'preview-spinner';
             
-            // Lade Modell-Preview
-            createModelPreview(previewCanvas, sequence[i].meshRef, previewSpinner);
+            // Lade Modell-Preview mit Background
+            createModelPreview(previewCanvas, sequence[i].meshRef, previewSpinner, sequence[i].background);
 
             previewWrapper.appendChild(previewCanvas);
             previewWrapper.appendChild(previewSpinner);
@@ -241,6 +276,7 @@ function updateOverviewButtons() {
                 
                 currentSequenceObjectID = i;
                 setSceneText(sequence[currentSequenceObjectID].text);
+                setSceneBackground(sequence[currentSequenceObjectID].background);
                 controls.object = sequence[currentSequenceObjectID].camera;
                 buttonGrid.remove();  // Entferne die Buttons
                 overviewTitle.style.display = 'none';  // Verstecke Überschrift
@@ -256,10 +292,17 @@ function updateOverviewButtons() {
 }
 
 // Erstelle einen 3D-Preview für ein Modell
-function createModelPreview(canvas, meshRef, spinner) {
+function createModelPreview(canvas, meshRef, spinner, backgroundPath) {
     const previewRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     previewRenderer.setSize(300, 300);
-    previewRenderer.setClearColor(0x000000, 0.2);
+    previewRenderer.setClearColor(0x000000, 0);  // Transparent damit Background sichtbar ist
+    
+    // Setze Background-Bild auf dem Canvas
+    if (backgroundPath) {
+        canvas.style.backgroundImage = `url('${backgroundPath}')`;
+        canvas.style.backgroundSize = 'cover';
+        canvas.style.backgroundPosition = 'center';
+    }
     
     const previewScene = new THREE.Scene();
     
@@ -366,7 +409,8 @@ function generateScene(sceneObj) {
         scene: newScene,
         camera: newCamera,
         text: sceneObj.text,
-        meshRef: sceneObj.meshRef
+        meshRef: sceneObj.meshRef,
+        background: sceneObj.background
     }
 
     sequence.push(newSequenceObj);
@@ -381,6 +425,7 @@ function showNextScene() {
     
     currentSequenceObjectID = nextID;
     setSceneText(sequence[currentSequenceObjectID].text);
+    setSceneBackground(sequence[currentSequenceObjectID].background);
     controls.object = sequence[currentSequenceObjectID].camera;
     
     // Entferne Übersichts-Buttons falls sichtbar
