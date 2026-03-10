@@ -185,6 +185,8 @@ function showOverview() {
     setSceneText(sequence[currentSequenceObjectID].text);
     setSceneBackground(null);  // Keine Background auf der Übersichtsseite
     controls.object = sequence[currentSequenceObjectID].camera;
+    controls.target.set(0, 0, 0);
+    controls.update();
     updateOverviewButtons();
     overviewTitle.style.display = 'block';
     overviewButton.style.display = 'none';
@@ -414,6 +416,8 @@ function updateOverviewButtons() {
                 setSceneText(sequence[currentSequenceObjectID].text);
                 setSceneBackground(sequence[currentSequenceObjectID].background);
                 controls.object = sequence[currentSequenceObjectID].camera;
+                controls.target.set(0, 0, 0);
+                controls.update();
                 buttonGrid.remove();  // Entferne die Buttons
                 overviewTitle.style.display = 'none';  // Verstecke Überschrift
                 overviewInfo.style.display = 'none';  // Verstecke Info-Text
@@ -531,7 +535,10 @@ function generateScene(sceneObj) {
     gltfLoader.load(sceneObj.meshRef, (gltf) => {
         newMesh = gltf.scene;
         newMesh.scale.set(1, 1, 1);  // Scale the model
-        newMesh.position.set(0, -0.475, 0);  // Position the model
+        // Normalize X/Z pivot so imported models stay centered in the view.
+        const box = new THREE.Box3().setFromObject(newMesh);
+        const center = box.getCenter(new THREE.Vector3());
+        newMesh.position.set(-center.x, -0.475, -center.z);  // Position the model
         newScene.add(newMesh);
     });
 
