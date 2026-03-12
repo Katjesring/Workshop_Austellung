@@ -125,8 +125,16 @@ function onWindowResize() {
     if (currentSequenceObjectID === overviewSceneID) {
         resizeRendererFull();
     } else if (currentViewIndex === 0 && imageOverlay) {
-        const imageBox = imageOverlay.querySelector('#image-box');
-        if (imageBox) resizeRendererToBox(imageBox);
+        const activeCard = imageOverlay.querySelector(`.zeitkapsel-card[data-scene="${currentSequenceObjectID}"]`);
+        const cardBox = activeCard?.querySelector('.card-box');
+        if (cardBox) {
+            resizeRendererToBox(cardBox);
+            const cardsTrack = imageOverlay.querySelector('.cards-track');
+            if (cardsTrack && activeCard) {
+                const cardIndex = currentSequenceObjectID - 1;
+                cardsTrack.style.transform = `translateX(-${cardIndex * (activeCard.offsetWidth + 24)}px)`;
+            }
+        }
     }
     fitTextToContainer();
 }
@@ -211,75 +219,147 @@ function showView(index) {
     currentViewIndex = ((index % views.length) + views.length) % views.length;
     const view = views[currentViewIndex];
 
+    // Overlay einmalig erstellen
     if (!imageOverlay) {
         imageOverlay = document.createElement('div');
         imageOverlay.id = 'image-overlay';
-        const imageTitle = document.createElement('div');
-        imageTitle.id = 'image-title';
-        const imageBox = document.createElement('div');
-        imageBox.id = 'image-box';
-        const imageCaption = document.createElement('div');
-        imageCaption.id = 'image-caption';
-        imageCaption.innerHTML = '<h2 id="caption-heading"></h2><p id="caption-body"></p>';
-        imageBox.appendChild(arrowLeft);
-        imageBox.appendChild(arrowRight);
-        imageOverlay.appendChild(imageTitle);
-        imageOverlay.appendChild(imageBox);
-        imageOverlay.appendChild(imageCaption);
         document.body.appendChild(imageOverlay);
+
+        // Swipe-Geste zum Wechseln der Views (innerhalb einer Zeitkapsel)
+        let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+        imageOverlay.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+        imageOverlay.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            const dt = Date.now() - touchStartTime;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 500) {
+                showView(currentViewIndex + (dx < 0 ? 1 : -1));
+            }
+        }, { passive: true });
     }
 
-    const imageTitle = imageOverlay.querySelector('#image-title');
-    const imageBox = imageOverlay.querySelector('#image-box');
-    const imageCaption = imageOverlay.querySelector('#image-caption');
+    // Karussell aufbauen: eine Karte pro Zeitkapsel-Szene
+    let cardsTrack = imageOverlay.querySelector('.cards-track');
+    if (!cardsTrack) {
+        cardsTrack = document.createElement('div');
+        cardsTrack.className = 'cards-track';
+        imageOverlay.appendChild(cardsTrack);
+    }
+    for (let i = 1; i < sequence.length; i++) {
+        if (!cardsTrack.querySelector(`.zeitkapsel-card[data-scene="${i}"]`)) {
+            const card = document.createElement('div');
+            card.className = 'zeitkapsel-card';
+            card.dataset.scene = String(i);
+
+            const cardTitle = document.createElement('div');
+            cardTitle.className = 'card-title';
+            cardTitle.innerHTML = sequence[i].title ? `<strong>ZEITKAPSEL</strong> – ${sequence[i].title}` : '<strong>ZEITKAPSEL</strong>';
+
+            const cardBox = document.createElement('div');
+            cardBox.className = 'card-box';
+            const bg = sequence[i].background;
+            if (bg) cardBox.style.backgroundImage = `url('${bg}')`;
+
+            const cardCaption = document.createElement('div');
+            cardCaption.className = 'card-caption';
+            cardCaption.innerHTML = '<h2 class="caption-heading"></h2><p class="caption-body"></p>';
+
+            card.appendChild(cardTitle);
+            card.appendChild(cardBox);
+            card.appendChild(cardCaption);
+
+            // Zur Zeitkapsel navigieren wenn auf eine inaktive Karte getippt wird
+            card.addEventListener('click', () => {
+                const idx = parseInt(card.dataset.scene);
+                if (idx !== currentSequenceObjectID) {
+                    currentSequenceObjectID = idx;
+                    currentViewIndex = 0;
+                    setSceneText(sequence[idx].text);
+                    setSceneBackground(sequence[idx].background);
+                    controls.object = sequence[idx].camera;
+                    controls.target.set(0, 0, 0);
+                    controls.update();
+                    updateArrows();
+                    showView(0);
+                }
+            });
+
+            cardsTrack.appendChild(card);
+        }
+    }
+
     imageOverlay.style.display = 'flex';
 
-    // Überschrift setzen
-    imageTitle.innerHTML = sceneObj.title ? `<strong>ZEITKAPSEL</strong> – ${sceneObj.title}` : '<strong>ZEITKAPSEL</strong>';
+    // Alle Karten auf Grundzustand zurücksetzen
+    cardsTrack.querySelectorAll('.zeitkapsel-card').forEach(card => {
+        card.classList.remove('active-card');
+        const img = card.querySelector('img.view-image');
+        if (img) img.remove();
+    });
 
-    // Caption befüllen und ein-/ausblenden
+    // Aktive Karte befüllen
+    const activeCard = cardsTrack.querySelector(`.zeitkapsel-card[data-scene="${currentSequenceObjectID}"]`);
+    activeCard.classList.add('active-card');
+    const cardBox = activeCard.querySelector('.card-box');
+    const cardCaption = activeCard.querySelector('.card-caption');
+
+    // Pfeile in aktive Box
+    cardBox.appendChild(arrowLeft);
+    cardBox.appendChild(arrowRight);
+
+    // Caption
     const captionKey = view === 'mesh' ? 'meshCaption' : view === 'imageBild' ? 'imageBildCaption' : view === 'imageText' ? 'imageTextCaption' : null;
     if (captionKey && sceneObj[captionKey]) {
-        imageOverlay.querySelector('#caption-heading').textContent = sceneObj[captionKey].heading;
-        imageOverlay.querySelector('#caption-body').textContent = sceneObj[captionKey].body;
-        imageCaption.style.display = 'block';
+        cardCaption.querySelector('.caption-heading').textContent = sceneObj[captionKey].heading;
+        cardCaption.querySelector('.caption-body').textContent = sceneObj[captionKey].body;
+        cardCaption.style.display = 'block';
     } else {
-        imageCaption.style.display = 'none';
+        cardCaption.style.display = 'none';
     }
 
-    // Img-Element entfernen falls vorhanden (wird nur für Bildansichten gebraucht)
-    const existingImg = imageBox.querySelector('img.view-image');
-    if (existingImg) existingImg.remove();
-
-    // Feste Zielabmessung für Unterseiten-Kasten: 5712 x 3213
-    imageBox.style.width = 'min(5712px, calc(100vw - 80px))';
-    imageBox.style.aspectRatio = '5712 / 3213';
+    // Navigations-Punkte
+    let dotsContainer = cardBox.querySelector('.view-dots');
+    if (!dotsContainer) {
+        dotsContainer = document.createElement('div');
+        dotsContainer.className = 'view-dots';
+        cardBox.appendChild(dotsContainer);
+    }
+    dotsContainer.innerHTML = '';
+    getViewsForScene(sceneObj).forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'view-dot' + (i === currentViewIndex ? ' active' : '');
+        dotsContainer.appendChild(dot);
+    });
 
     if (view === 'mesh') {
-        imageBox.style.backgroundImage = '';
-        // Hintergrundbild direkt auf die Box setzen
         const bg = sequence[currentSequenceObjectID].background;
-        imageBox.style.backgroundImage = bg ? `url('${bg}')` : '';
-        imageBox.style.backgroundSize = 'cover';
-        imageBox.style.backgroundPosition = 'center';
-        // Canvas in die Box verschieben
-        imageBox.appendChild(contentContainer);
+        cardBox.style.backgroundImage = bg ? `url('${bg}')` : '';
+        cardBox.appendChild(contentContainer);
         contentContainer.style.position = 'absolute';
         contentContainer.style.inset = '0';
         contentContainer.style.zIndex = '1';
         contentContainer.style.display = 'block';
-        // Renderer nach Layout-Berechnung auf Box-Größe anpassen
-        requestAnimationFrame(() => resizeRendererToBox(imageBox));
+        requestAnimationFrame(() => resizeRendererToBox(cardBox));
     } else {
-        // Canvas aus der Box herausverschieben und verstecken
         document.body.appendChild(contentContainer);
         contentContainer.style.display = 'none';
-        imageBox.style.backgroundImage = '';
+        cardBox.style.backgroundImage = '';
         const imgEl = document.createElement('img');
         imgEl.className = 'view-image';
         imgEl.src = sceneObj[view];
-        imageBox.appendChild(imgEl);
+        cardBox.appendChild(imgEl);
     }
+
+    // Karussell zur aktiven Karte verschieben
+    requestAnimationFrame(() => {
+        const cardIndex = currentSequenceObjectID - 1;
+        const cardWidth = activeCard.offsetWidth;
+        cardsTrack.style.transform = `translateX(-${cardIndex * (cardWidth + 24)}px)`;
+    });
 }
 
 // Pfeile ein-/ausblenden je nach verfügbaren Views
