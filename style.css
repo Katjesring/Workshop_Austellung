@@ -24,22 +24,88 @@ body {
     overflow: hidden;
 }
 
-#overview-button {
+#overview-header {
     position: absolute;
-    top: 14px;
-    right: 40px;
+    top: clamp(10px, 5vw, 40px);
+    left: clamp(10px, 5vw, 40px);
+    right: clamp(10px, 5vw, 40px);
     z-index: 100;
-    padding: 10px;
-    background: none;
-    color: rgba(180, 180, 180, 0.5);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+#overview-header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+#room-button {
+    position: static;
+    z-index: 100;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
     border: none;
-    font-size: clamp(42px, 5vw, 68px);
+    font-size: 32px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    transition: transform 0.15s, background 0.2s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#room-button:hover, #room-button:active {
+    background: rgba(255,255,255,1);
+    transform: scale(1.1);
+}
+
+#tree-button {
+    position: static;
+    z-index: 100;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    transition: transform 0.15s, background 0.2s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#tree-button:hover, #tree-button:active {
+    background: rgba(255,255,255,1);
+    transform: scale(1.1);
+}
+
+#overview-button {
+    position: static;
+    padding: 4px;
+    background: none;
+    color: rgba(140, 140, 140, 0.7);
+    border: none;
+    font-size: 25px;
     cursor: pointer;
     transition: color 0.2s;
     line-height: 1;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 #overview-button:hover {
@@ -47,9 +113,7 @@ body {
 }
 
 #overview-title {
-    position: absolute;
-    top: clamp(10px, 5vw, 40px);
-    left: clamp(10px, 5vw, 40px);
+    position: static;
     z-index: 100;
     color: black;
     font-size: clamp(40px, 10vw, 80px);
@@ -61,11 +125,11 @@ body {
 }
 
 #overview-info {
-    position: absolute;
-    top: clamp(10px, 5vw, 40px);
-    right: clamp(10px, 5vw, 40px);
+    position: static;
+    margin-left: auto;
+    align-self: flex-end;
     z-index: 100;
-    max-width: min(90vw, 400px);
+    max-width: min(50vw, 800px);
     color: black;
     font-size: clamp(12px, 2vw, 16px);
     line-height: 1.5;
@@ -74,9 +138,39 @@ body {
     text-align: right;
 }
 
+@media (max-width: 979px) {
+    #overview-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #overview-info {
+        margin-left: 0;
+        align-self: stretch;
+        max-width: 100%;
+        text-align: left;
+    }
+}
+
+@media (max-width: 549px) {
+    #room-button,
+    #tree-button {
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+    }
+
+    #room-button img,
+    #tree-button img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+}
+
 .button-grid {
     position: absolute;
     top: clamp(120px, 25vh, 200px);
+    bottom: clamp(15px, 3vw, 30px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 50;
@@ -85,12 +179,13 @@ body {
     gap: clamp(20px, 4vw, 40px);
     max-width: 95vw;
     width: 95vw;
-    max-height: calc(100vh - clamp(200px, 30vh, 300px));
     overflow-y: auto;
     overflow-x: hidden;
     align-content: start;
-    padding: clamp(15px, 3vw, 30px);
+    padding: clamp(15px, 3vw, 30px) 0 clamp(15px, 3vw, 30px) 0;
     box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .button-grid {
@@ -136,6 +231,13 @@ body {
     overflow: hidden;
 }
 
+.preview-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .preview-spinner {
     position: absolute;
     top: 50%;
@@ -164,32 +266,36 @@ body {
     top: 50%;
     transform: translateY(-50%);
     z-index: 100;
-    padding: 20px;
-    background: none;
-    color: rgba(180, 180, 180, 0.5);
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    background: rgba(255,255,255,0.5);
+    color: #222;
     border: none;
-    font-size: clamp(48px, 5vw, 72px);
+    border-radius: 50px;
+    font-size: 28px;
     cursor: pointer;
     display: none;
-    transition: color 0.2s;
+    transition: color 0.2s, transform 0.15s;
     line-height: 1;
-    font-weight: 600;
-    letter-spacing: -4px;
+    font-weight: 700;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
+    align-items: center;
+    justify-content: center;
 }
 
-.arrow:hover {
-    color: rgba(150, 150, 150, 0.8);
+.arrow:hover, .arrow:active {
+    transform: translateY(-50%) scale(1.1);
 }
 
 #arrow-left {
-    left: 20px;
+    left: 14px;
 }
 
 #arrow-right {
-    right: 20px;
+    right: 14px;
 }
 
 #image-overlay {
@@ -202,7 +308,7 @@ body {
     z-index: 10;
     display: none;
     flex-direction: column;
-    padding: 30px 0 30px 40px;
+    padding: 30px 0;
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -218,7 +324,7 @@ body {
 
 .zeitkapsel-card {
     flex-shrink: 0;
-    width: min(calc(85vw - 40px), calc(100vw - 140px));
+    width: min(calc(100vw - 120px), calc((100vh - 120px) * 16 / 9));
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -234,6 +340,10 @@ body {
     font-size: clamp(18px, 2vw, 28px);
     font-weight: normal;
     color: #111;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 33px;
 }
 
 .card-caption {
@@ -295,4 +405,29 @@ body {
 
 .view-dot.active {
     background: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 899px) {
+    .zeitkapsel-card {
+        width: min(calc(100vw - 120px), calc((100vh - 120px) * 9 / 16));
+    }
+
+    .card-box {
+        aspect-ratio: 9 / 16;
+        width: min(100%, calc((100vh - 120px) * 9 / 16));
+    }
+
+    .arrow {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    #arrow-left {
+        left: 7px;
+    }
+
+    #arrow-right {
+        right: 7px;
+    }
 }

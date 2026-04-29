@@ -1,42 +1,205 @@
 {
     "objects": [
         {
-            "meshRef": "/mesh/mesh0.glb",
-            "title": "WS06.03",
+            "meshRef": "/mesh/Snail.glb",
+            "previewVideo": "/previewVideos/snail.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Amorph2.glb",
+            "previewVideo": "/previewVideos/amorph2.mp4",
+            "title": "WS.17.04.1",
             "text": "",
             "background": "/background/background1.jpg",
-            "meshCaption": {
-                "heading": "Reflektieren - GW04",
-                "body": "Welche Rolle könnte Arbeit oder ein Beruf in deinem zukünftigen Leben spielen? Wie stellst du dir deine Arbeit in Zukunft vor? Welche Tätigkeiten würdest du gerne ausüben, wenn es kein Geldsystem gäbe?"
-            },
+            "scale": 3,
+            "yOffset": -0.37,
             "imageBild": "/images_bild/Bild1.jpg",
-            "imageBildCaption": {
-                "heading": "Reflektieren - GW04",
-                "body": "Welche Rolle könnte Arbeit oder ein Beruf in deinem zukünftigen Leben spielen? Wie stellst du dir deine Arbeit in Zukunft vor? Welche Tätigkeiten würdest du gerne ausüben, wenn es kein Geldsystem gäbe?"
-            },
-            "imageText": "/images_text/Text3.jpeg",
-            "imageTextCaption": {
-                "heading": "Reflektieren - GW04",
-                "body": "Welche Rolle könnte Arbeit oder ein Beruf in deinem zukünftigen Leben spielen? Wie stellst du dir deine Arbeit in Zukunft vor? Welche Tätigkeiten würdest du gerne ausüben, wenn es kein Geldsystem gäbe?"
-            }
+
+            "imageText": "/images_text/Text2.png"
+
         },
         {
-            "meshRef": "/mesh/mesh1.glb",
-            "title": "WS06.04",
+            "meshRef": "/mesh/Leafhuman.glb",
+            "previewVideo": "/previewVideos/leafhuman.mp4",
+            "title": "WS.17.04.1",
             "text": "",
-            "background": "/background/background2.jpg"
+            "background": "/background/background2.jpg",
+            "scale": 1.5,
+            "yOffset": -0.375,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
         },
         {
-            "meshRef": "/mesh/mesh2.glb",
-            "title": "WS06.05",
+            "meshRef": "/mesh/Hochofen.glb",
+            "previewVideo": "/previewVideos/hochofen.mp4",
+            "title": "WS.17.04.1",
             "text": "",
-            "background": "/background/background3.jpg"
+            "background": "/background/background5.jpg",
+            "scale": 2.2,
+            "yOffset": -0.37,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
         },
         {
-            "meshRef": "/mesh/mesh2.glb",
-            "title": "WS06.06",
+            "meshRef": "/mesh/Coral.glb",
+            "previewVideo": "/previewVideos/coral.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Lilflower.glb",
+            "previewVideo": "/previewVideos/lilflower.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background3.jpg",
+            "scale": 2,
+            "yOffset": -0.37,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Froh.glb",
+            "previewVideo": "/previewVideos/froh.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 3,
+            "yOffset": -0.395,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Planthouse.glb",
+            "previewVideo": "/previewVideos/planthouse.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background5.jpg",
+            "scale": 3,
+            "yOffset": -0.375,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Fossil.glb",
+            "previewVideo": "/previewVideos/fossil.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background1.jpg",
+            "scale": 3,
+            "yOffset": -0.39,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Modular.glb",
+            "previewVideo": "/previewVideos/modular.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background3.jpg",
+            "scale": 2.5,
+            "yOffset": -0.365,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/Amorph.glb",
+            "previewVideo": "/previewVideos/amorph.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background2.jpg",
+            "scale": 1.5,
+            "yOffset": -0.375,
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        
+
+
+
+        {
+            "meshRef": "/mesh/flowers.glb",
+            "previewVideo": "/previewVideos/flowers.mp4",
+            "scale": 1,
+            "yOffset": -0.375,
+            "title": "WS.17.04.2",
+            "text": "",
+            "background": "/background/background3.jpg",
+
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+        },
+        {
+            "meshRef": "/mesh/towers.glb",
+            "previewVideo": "/previewVideos/towers.mp4",
+            "scale": 2,
+            "yOffset": -0.375,
+            "title": "WS.17.04.3",
             "text": "",
             "background": "/background/background4.jpg"
+        },
+        {
+            "meshRef": "/mesh/Bigflower.glb",
+            "previewVideo": "/previewVideos/bigflower.mp4",
+            "scale": 1,
+            "yOffset": -0.4,
+            "title": "WS.17.04.4",
+            "text": "",
+            "background": "/background/background5.jpg"
+        },
+        {
+            "meshRef": "/mesh/towers2.glb",
+            "previewVideo": "/previewVideos/towers2.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background2.jpg",
+            "scale": 3,
+
+            "imageBild": "/images_bild/Bild1.jpg",
+
+            "imageText": "/images_text/Text2.png"
+
+        },
+        {
+            "meshRef": "/mesh/reef.glb",
+            "previewVideo": "/previewVideos/reef.mp4",
+            "scale": 4,
+            "yOffset": -0.45,
+            "title": "WS.17.04.5",
+            "text": "",
+            "background": "/background/background1.jpg"
         }
+        
     ]
 }

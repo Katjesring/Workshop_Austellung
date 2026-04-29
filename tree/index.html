@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garten</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Gill Sans', sans-serif;
+            font-size: 20px;
+            z-index: 10;
+        }
+        #back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 201;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.85);
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #back-button:hover { background: rgba(255,255,255,1); }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.178.0/three.module.js",
+            "@sparkjsdev/spark": "https://sparkjs.dev/releases/spark/0.1.10/spark.module.js"
+        }
+    }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { SplatMesh } from '@sparkjsdev/spark';
+        import { OrbitControls } from 'https://unpkg.com/three@0.178.0/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'https://unpkg.com/three@0.178.0/examples/jsm/loaders/GLTFLoader.js';
+
+        const loading = document.getElementById('loading');
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0.45, 2.78, -3.62);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        document.body.appendChild(document.getElementById('cam-info'));
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(-0.24, 0.86, 0.26);
+        window._camera = camera; window._controls = controls;
+
+        // Splat laden
+        const splat = new SplatMesh({ url: '/ply/garten.ply' });
+        splat.rotation.z = Math.PI;
+        scene.add(splat);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.position.set(2, 4, 3);
+        scene.add(dirLight);
+
+        setTimeout(() => { loading.style.display = 'none'; }, 3000);
+
+        // ── Hier einstellen wo die Meshes fliegen ──────────────────
+        const ORBIT_X      =  0;    // Mittelpunkt links/rechts
+        const ORBIT_Z      =  0;    // Mittelpunkt vorne/hinten
+        const ORBIT_Y      =  1.0;  // Grundhöhe (höher = weiter oben)
+        const ORBIT_RADIUS =  1.5;  // Wie weit weg vom Mittelpunkt
+        // ────────────────────────────────────────────────────────────
+
+        // Meshes aus data.json laden und schweben lassen
+        const floatingMeshes = [];
+        const loader = new GLTFLoader();
+
+        try {
+            const response = await fetch('/json/data.json');
+            const data = await response.json();
+
+            data.objects.forEach((obj, i) => {
+                loader.load(obj.meshRef, (gltf) => {
+                    const mesh = gltf.scene;
+
+                    // Einheitsgröße: alle Meshes gleich groß skalieren
+                    const box = new THREE.Box3().setFromObject(mesh);
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    mesh.scale.setScalar(0.6 / maxDim);
+
+                    // Startposition gleichmäßig um den Mittelpunkt verteilen
+                    const angle = (i / data.objects.length) * Math.PI * 2;
+                    const radius = ORBIT_RADIUS + (i % 2) * 0.3;
+                    mesh.position.set(
+                        ORBIT_X + Math.cos(angle) * radius,
+                        ORBIT_Y,
+                        ORBIT_Z + Math.sin(angle) * radius
+                    );
+
+                    scene.add(mesh);
+                    floatingMeshes.push({
+                        mesh,
+                        orbitAngle: angle,
+                        orbitRadius: radius,
+                        orbitSpeed: 0.15 + Math.random() * 0.2,
+                        bobOffset: Math.random() * Math.PI * 2,
+                        bobSpeed:  0.4 + Math.random() * 0.4,
+                        rotSpeed:  0.005 + Math.random() * 0.01,
+                    });
+                });
+            });
+        } catch (e) {
+            console.warn('Meshes konnten nicht geladen werden:', e);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        renderer.setAnimationLoop((time) => {
+            const t = time / 1000;
+            floatingMeshes.forEach(item => {
+                item.orbitAngle += item.orbitSpeed * 0.01;
+                item.mesh.position.x = ORBIT_X + Math.cos(item.orbitAngle) * item.orbitRadius;
+                item.mesh.position.z = ORBIT_Z + Math.sin(item.orbitAngle) * item.orbitRadius;
+                item.mesh.position.y = ORBIT_Y + Math.sin(t * item.bobSpeed + item.bobOffset) * 0.2;
+                item.mesh.rotation.y += item.rotSpeed;
+            });
+            controls.update();
+            renderer.render(scene, camera);
+        });
+
+        document.getElementById('back-button').addEventListener('click', () => {
+            if (document.referrer && new URL(document.referrer).origin === location.origin) {
+                history.back();
+            } else {
+                location.href = '/';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="loading">Wird geladen…</div>
+    <button id="back-button" aria-label="Zurück">✕</button>
+    <div id="cam-info" style="position:fixed;bottom:16px;left:16px;z-index:99;background:rgba(0,0,0,0.55);color:#fff;font-family:monospace;font-size:13px;padding:8px 12px;border-radius:8px;white-space:pre;pointer-events:none;"></div>
+</body>
+</html>

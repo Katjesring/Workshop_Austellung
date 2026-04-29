@@ -11,6 +11,8 @@ let overviewTitle = document.getElementById('overview-title');
 let overviewInfo = document.getElementById('overview-info');
 let arrowLeft = document.getElementById('arrow-left');
 let arrowRight = document.getElementById('arrow-right');
+let treeButton = document.getElementById('tree-button');
+let roomButton = document.getElementById('room-button');
 let backgroundElement = null;  // Element für Background-Bilder
 let imageOverlay = null;       // Element für imageBild / imageText Anzeige
 let currentViewIndex = 0;      // 0=mesh, 1=imageBild, 2=imageText
@@ -20,9 +22,8 @@ let platform;
 
 let currentSequenceObjectID = 0;
 let overviewSceneID = 0;  // Die Übersichtsszene ist immer Szene 0
-let activePreviewRenderers = [];  // Speichert aktive Preview-Renderer zum Bereinigen
-let activePreviewScenes = [];  // Speichert aktive Preview-Szenen zum Bereinigen
 
+THREE.Cache.enabled = false;
 const gltfLoader = new GLTFLoader();
 
 // const clock = new THREE.Clock();
@@ -46,22 +47,35 @@ async function init() {
     createOverviewScene();
 
     await readJSON();
-    setSceneText(sequence[currentSequenceObjectID].text);
 
     controls = new OrbitControls(sequence[currentSequenceObjectID].camera, renderer.domElement);
     controls.enableDamping = true;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 2.0;
     controls.minDistance = 10;  // Minimale Zoom-Distanz (wie nah darf man ran)
-    controls.maxDistance = 100; // Maximale Zoom-Distanz (wie weit darf man raus)
+    controls.maxDistance = window.innerWidth < 900 ? 130 : 100; // Maximale Zoom-Distanz (wie weit darf man raus)
+    controls.enablePan = false;
+    controls.maxPolarAngle = Math.PI * 3 / 4;
 
     // Zeige Überschrift und Info beim Start (da wir in der Übersichtsszene starten)
     overviewTitle.style.display = 'block';
-    overviewInfo.style.display = 'block';
+    overviewInfo.style.display = 'flex';
     overviewButton.style.display = 'none';
+    treeButton.style.display = 'flex';
+    roomButton.style.display = 'flex';
 
     // Click-Handler für Übersicht-Button
-    overviewButton.addEventListener('click', showOverview);
+    overviewButton.addEventListener('click', (e) => { e.stopPropagation(); showOverview(); });
+
+    // Klick auf Baum-Button leitet auf Garten-Unterseite weiter
+    treeButton.addEventListener('click', () => {
+        window.location.href = '/tree';
+    });
+
+    // Klick auf Raum-Button leitet auf Vorraum-Unterseite weiter
+    roomButton.addEventListener('click', () => {
+        window.location.href = '/room';
+    });
 
     // Click-Handler für Pfeile
     arrowLeft.addEventListener('click', () => showView(currentViewIndex - 1));
@@ -69,11 +83,6 @@ async function init() {
 
     // Resize-Handler für dynamische Textgroesse
     window.addEventListener('resize', onWindowResize);
-}
-
-function setSceneText(text) {
-    textContainer.textContent = text || '';
-    requestAnimationFrame(fitTextToContainer);
 }
 
 function setSceneBackground(backgroundPath) {
@@ -132,7 +141,9 @@ function onWindowResize() {
             const cardsTrack = imageOverlay.querySelector('.cards-track');
             if (cardsTrack && activeCard) {
                 const cardIndex = currentSequenceObjectID - 1;
-                cardsTrack.style.transform = `translateX(-${cardIndex * (activeCard.offsetWidth + 24)}px)`;
+                const cardWidth = activeCard.offsetWidth;
+                const offset = cardIndex * (cardWidth + 24) - (window.innerWidth - cardWidth) / 2;
+                cardsTrack.style.transform = `translateX(${-offset}px)`;
             }
         }
     }
@@ -167,7 +178,7 @@ function createOverviewScene() {
     let overviewScene = new THREE.Scene();
     
     let camera = new THREE.PerspectiveCamera(1, window.innerWidth / window.innerHeight, 0.1, 10000);
-    camera.position.set(0, 0, 5);
+    camera.position.set(0, 0, 3);
 
     overviewScene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
@@ -190,7 +201,6 @@ function showOverview() {
     resizeRendererFull();
 
     currentSequenceObjectID = overviewSceneID;
-    setSceneText(sequence[currentSequenceObjectID].text);
     setSceneBackground(null);  // Keine Background auf der Übersichtsseite
     controls.object = sequence[currentSequenceObjectID].camera;
     controls.target.set(0, 0, 0);
@@ -198,9 +208,11 @@ function showOverview() {
     updateOverviewButtons();
     overviewTitle.style.display = 'block';
     overviewButton.style.display = 'none';
-    overviewInfo.style.display = 'block';
+    overviewInfo.style.display = 'flex';
     arrowLeft.style.display = 'none';
     arrowRight.style.display = 'none';
+    treeButton.style.display = 'flex';
+    roomButton.style.display = 'flex';
     if (imageOverlay) imageOverlay.style.display = 'none';
 }
 
@@ -225,21 +237,6 @@ function showView(index) {
         imageOverlay.id = 'image-overlay';
         document.body.appendChild(imageOverlay);
 
-        // Swipe-Geste zum Wechseln der Views (innerhalb einer Zeitkapsel)
-        let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
-        imageOverlay.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now();
-        }, { passive: true });
-        imageOverlay.addEventListener('touchend', (e) => {
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            const dt = Date.now() - touchStartTime;
-            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 500) {
-                showView(currentViewIndex + (dx < 0 ? 1 : -1));
-            }
-        }, { passive: true });
     }
 
     // Karussell aufbauen: eine Karte pro Zeitkapsel-Szene
@@ -258,6 +255,13 @@ function showView(index) {
             const cardTitle = document.createElement('div');
             cardTitle.className = 'card-title';
             cardTitle.innerHTML = sequence[i].title ? `<strong>ZEITKAPSEL</strong> – ${sequence[i].title}` : '<strong>ZEITKAPSEL</strong>';
+            cardTitle.style.cursor = 'pointer';
+            cardTitle.addEventListener('click', (e) => {
+                if (parseInt(card.dataset.scene) === currentSequenceObjectID) {
+                    e.stopPropagation();
+                    showOverview();
+                }
+            });
 
             const cardBox = document.createElement('div');
             cardBox.className = 'card-box';
@@ -278,7 +282,6 @@ function showView(index) {
                 if (idx !== currentSequenceObjectID) {
                     currentSequenceObjectID = idx;
                     currentViewIndex = 0;
-                    setSceneText(sequence[idx].text);
                     setSceneBackground(sequence[idx].background);
                     controls.object = sequence[idx].camera;
                     controls.target.set(0, 0, 0);
@@ -311,6 +314,10 @@ function showView(index) {
     cardBox.appendChild(arrowLeft);
     cardBox.appendChild(arrowRight);
 
+    // Overview-Button in Titel der aktiven Karte
+    const activeTitle = activeCard.querySelector('.card-title');
+    activeTitle.appendChild(overviewButton);
+
     // Caption
     const captionKey = view === 'mesh' ? 'meshCaption' : view === 'imageBild' ? 'imageBildCaption' : view === 'imageText' ? 'imageTextCaption' : null;
     if (captionKey && sceneObj[captionKey]) {
@@ -321,7 +328,7 @@ function showView(index) {
         cardCaption.style.display = 'none';
     }
 
-    // Navigations-Punkte
+    // Navigations-Punkte (nur bei mehreren Views)
     let dotsContainer = cardBox.querySelector('.view-dots');
     if (!dotsContainer) {
         dotsContainer = document.createElement('div');
@@ -329,11 +336,13 @@ function showView(index) {
         cardBox.appendChild(dotsContainer);
     }
     dotsContainer.innerHTML = '';
-    getViewsForScene(sceneObj).forEach((_, i) => {
-        const dot = document.createElement('div');
-        dot.className = 'view-dot' + (i === currentViewIndex ? ' active' : '');
-        dotsContainer.appendChild(dot);
-    });
+    if (views.length > 1) {
+        views.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'view-dot' + (i === currentViewIndex ? ' active' : '');
+            dotsContainer.appendChild(dot);
+        });
+    }
 
     if (view === 'mesh') {
         const bg = sequence[currentSequenceObjectID].background;
@@ -354,243 +363,107 @@ function showView(index) {
         cardBox.appendChild(imgEl);
     }
 
-    // Karussell zur aktiven Karte verschieben
+    // Karussell zur aktiven Karte verschieben + Overview-Button positionieren
     requestAnimationFrame(() => {
         const cardIndex = currentSequenceObjectID - 1;
         const cardWidth = activeCard.offsetWidth;
-        cardsTrack.style.transform = `translateX(-${cardIndex * (cardWidth + 24)}px)`;
+        const offset = cardIndex * (cardWidth + 24) - (window.innerWidth - cardWidth) / 2;
+        cardsTrack.style.transform = `translateX(${-offset}px)`;
+
     });
 }
 
 // Pfeile ein-/ausblenden je nach verfügbaren Views
 function updateArrows() {
+    arrowLeft.style.display = 'none';
+    arrowRight.style.display = 'none';
     const sceneObj = sequence[currentSequenceObjectID];
     const views = getViewsForScene(sceneObj);
     if (currentSequenceObjectID !== overviewSceneID && views.length > 1) {
-        arrowLeft.style.display = 'block';
-        arrowRight.style.display = 'block';
-    } else {
-        arrowLeft.style.display = 'none';
-        arrowRight.style.display = 'none';
+        setTimeout(() => {
+            arrowLeft.style.display = 'flex';
+            arrowRight.style.display = 'flex';
+        }, 420);
     }
-}
-
-// Hilfsfunktion zum rekursiven Freigeben von Ressourcen
-function disposeScene(scene) {
-    scene.traverse((object) => {
-        if (object.geometry) {
-            object.geometry.dispose();
-        }
-        if (object.material) {
-            if (Array.isArray(object.material)) {
-                object.material.forEach(material => {
-                    disposeMaterial(material);
-                });
-            } else {
-                disposeMaterial(object.material);
-            }
-        }
-    });
-}
-
-function disposeMaterial(material) {
-
-    if (material.lightMap) material.lightMap.dispose();
-    if (material.bumpMap) material.bumpMap.dispose();
-    if (material.normalMap) material.normalMap.dispose();
-    if (material.specularMap) material.specularMap.dispose();
-    if (material.envMap) material.envMap.dispose();
-    material.dispose();
 }
 
 // Erstelle oder aktualisiere die Navigationbuttons für die Übersichtsszene
 function updateOverviewButtons() {
-    console.log('updateOverviewButtons called, sequence.length:', sequence.length);
-    // ZUERST: Stoppe alle Preview-Rendering
-    activePreviewRenderers.forEach((renderer) => {
-        if (renderer.stopRendering) {
-            try {
-                renderer.stopRendering();
-            } catch (e) {
-                console.error('Error stopping preview:', e);
-            }
-        }
-    });
-    
-    // ZWEITENS: Gebe Resources frei
-    activePreviewRenderers.forEach((renderer, index) => {
-        const scene = activePreviewScenes[index];
-        if (scene) {
-            try {
-                disposeScene(scene);
-            } catch (e) {
-                console.error('Error disposing scene:', e);
-            }
-        }
-        try {
-            renderer.dispose();
-            renderer.forceContextLoss();
-        } catch (e) {
-            console.error('Error disposing renderer:', e);
-        }
-    });
-    
-    activePreviewRenderers = [];
-    activePreviewScenes = [];
-    
-    // Gebe dem Browser Zeit zum Aufräumen
-    setTimeout(() => {
-        console.log('setTimeout in updateOverviewButtons, creating buttons...');
-        // Entferne alte Button-Grid falls vorhanden
-        let oldGrid = document.querySelector('.button-grid');
-        if (oldGrid) oldGrid.remove();
+    // Entferne alte Button-Grid falls vorhanden
+    let oldGrid = document.querySelector('.button-grid');
+    if (oldGrid) oldGrid.remove();
 
-        // Erstelle neue Button-Grid
-        let buttonGrid = document.createElement('div');
-        buttonGrid.className = 'button-grid';
-        console.log('Button grid created, adding buttons for', sequence.length - 1, 'scenes');
+    // Erstelle neue Button-Grid
+    let buttonGrid = document.createElement('div');
+    buttonGrid.className = 'button-grid';
 
-        // Erstelle Buttons für alle Nicht-Übersichts-Szenen
-        for (let i = 1; i < sequence.length; i++) {
-            let button = document.createElement('button');
-            button.className = 'scene-button';
-            
-            // Erstelle Container für Preview und Text
-            let buttonContent = document.createElement('div');
-            buttonContent.style.display = 'flex';
-            buttonContent.style.flexDirection = 'column';
-            buttonContent.style.alignItems = 'center';
-            buttonContent.style.width = '100%';
-            buttonContent.style.height = '100%';
-            
-            // Erstelle Preview-Canvas
-            let previewWrapper = document.createElement('div');
-            previewWrapper.className = 'preview-wrapper';
+    // Erstelle Buttons für alle Nicht-Übersichts-Szenen
+    for (let i = 1; i < sequence.length; i++) {
+        let button = document.createElement('button');
+        button.className = 'scene-button';
 
-            let previewCanvas = document.createElement('canvas');
-            previewCanvas.width = 300;
-            previewCanvas.height = 300;
-            previewCanvas.style.borderRadius = '35px';
+        // Erstelle Container für Preview und Text
+        let buttonContent = document.createElement('div');
+        buttonContent.style.display = 'flex';
+        buttonContent.style.flexDirection = 'column';
+        buttonContent.style.alignItems = 'center';
+        buttonContent.style.width = '100%';
+        buttonContent.style.height = '100%';
 
-            let previewSpinner = document.createElement('div');
-            previewSpinner.className = 'preview-spinner';
-            
-            // Lade Modell-Preview mit Background
-            createModelPreview(previewCanvas, sequence[i].meshRef, previewSpinner, sequence[i].background);
-
-            previewWrapper.appendChild(previewCanvas);
-            previewWrapper.appendChild(previewSpinner);
-            
-            buttonContent.appendChild(previewWrapper);
-            button.appendChild(buttonContent);
-            
-            button.addEventListener('click', () => {
-                // Räume Preview-Renderer auf bevor wir die szene wechseln
-                activePreviewRenderers.forEach((renderer) => {
-                    if (renderer.stopRendering) renderer.stopRendering();
-                });
-                activePreviewRenderers = [];
-                activePreviewScenes = [];
-                
-                currentSequenceObjectID = i;
-                setSceneText(sequence[currentSequenceObjectID].text);
-                setSceneBackground(sequence[currentSequenceObjectID].background);
-                controls.object = sequence[currentSequenceObjectID].camera;
-                controls.target.set(0, 0, 0);
-                controls.update();
-                buttonGrid.remove();  // Entferne die Buttons
-                overviewTitle.style.display = 'none';  // Verstecke Überschrift
-                overviewInfo.style.display = 'none';  // Verstecke Info-Text
-                overviewButton.style.display = 'block';  // Zeige Home-Button
-                currentViewIndex = 0;
-                updateArrows();
-                showView(0);
-            });
-            buttonGrid.appendChild(button);
+        // Preview-Wrapper mit Background als Fallback während des Ladens
+        let previewWrapper = document.createElement('div');
+        previewWrapper.className = 'preview-wrapper';
+        const bg = sequence[i].background;
+        if (bg) {
+            previewWrapper.style.backgroundImage = `url('${bg}')`;
+            previewWrapper.style.backgroundSize = 'cover';
+            previewWrapper.style.backgroundPosition = 'center';
         }
 
-        document.body.appendChild(buttonGrid);
-    }, 50);
-}
+        let previewSpinner = document.createElement('div');
+        previewSpinner.className = 'preview-spinner';
 
-// Erstelle einen 3D-Preview für ein Modell
-function createModelPreview(canvas, meshRef, spinner, backgroundPath) {
-    const previewRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    previewRenderer.setSize(300, 300);
-    previewRenderer.setClearColor(0x000000, 0);  // Transparent damit Background sichtbar ist
-    
-    // Setze Background-Bild auf dem Canvas
-    if (backgroundPath) {
-        canvas.style.backgroundImage = `url('${backgroundPath}')`;
-        canvas.style.backgroundSize = 'cover';
-        canvas.style.backgroundPosition = 'center';
+        const previewVideoSrc = sequence[i].previewVideo;
+        if (previewVideoSrc) {
+            let previewVideo = document.createElement('video');
+            previewVideo.className = 'preview-video';
+            previewVideo.src = previewVideoSrc;
+            previewVideo.autoplay = true;
+            previewVideo.loop = true;
+            previewVideo.muted = true;
+            previewVideo.playsInline = true;
+            previewVideo.setAttribute('playsinline', '');
+            previewVideo.addEventListener('canplay', () => { previewSpinner.style.display = 'none'; });
+            previewVideo.addEventListener('error', () => { previewSpinner.style.display = 'none'; });
+            previewWrapper.appendChild(previewVideo);
+        } else {
+            previewSpinner.style.display = 'none';
+        }
+        previewWrapper.appendChild(previewSpinner);
+
+        buttonContent.appendChild(previewWrapper);
+        button.appendChild(buttonContent);
+
+        button.addEventListener('click', () => {
+            currentSequenceObjectID = i;
+            setSceneBackground(sequence[currentSequenceObjectID].background);
+            controls.object = sequence[currentSequenceObjectID].camera;
+            controls.target.set(0, -0.1, 0);
+            controls.update();
+            buttonGrid.remove();  // Entferne die Buttons
+            overviewTitle.style.display = 'none';  // Verstecke Überschrift
+            overviewInfo.style.display = 'none';  // Verstecke Info-Text
+            overviewButton.style.display = 'block';  // Zeige Home-Button
+            treeButton.style.display = 'none';
+            roomButton.style.display = 'none';
+            currentViewIndex = 0;
+            updateArrows();
+            showView(0);
+        });
+        buttonGrid.appendChild(button);
     }
-    
-    const previewScene = new THREE.Scene();
-    
-    // Speichere Renderer und Szene zum späteren Bereinigen
-    activePreviewRenderers.push(previewRenderer);
-    activePreviewScenes.push(previewScene);
-    
-    const previewCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    previewCamera.position.set(0, 0, 2);
-    
-    previewScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    
-    let spotLight = new THREE.SpotLight(0xffffff);
-    spotLight.position.set(1, 1, 1);
-    spotLight.power = 50;
-    previewScene.add(spotLight);
-    
-    let animationFrameID = null;
-    let isStillRendering = true;
-    
-    // Lade das Modell
-    const hideSpinner = () => {
-        if (spinner) spinner.style.display = 'none';
-    };
 
-    gltfLoader.load(meshRef, (gltf) => {
-        if (!isStillRendering) return;  // Abbruch wenn bereits aufgeräumt
-        
-        let mesh = gltf.scene;
-        mesh.scale.set(2.2, 2.2, 2.2);
-        previewScene.add(mesh);
-
-        hideSpinner();
-        
-        // Zentere das Modell
-        const box = new THREE.Box3().setFromObject(mesh);
-        const center = box.getCenter(new THREE.Vector3());
-        mesh.position.sub(center);
-        
-        // Animiere den Preview
-        function animatePreview() {
-            if (!isStillRendering) {
-                if (animationFrameID) cancelAnimationFrame(animationFrameID);
-                return;
-            }
-            animationFrameID = requestAnimationFrame(animatePreview);
-            mesh.rotation.y += 0.01;
-            try {
-                previewRenderer.render(previewScene, previewCamera);
-            } catch (e) {
-                isStillRendering = false;
-            }
-        }
-        animatePreview();
-    }, undefined, () => {
-        hideSpinner();
-    });
-    
-    // Speichere Funktion zum Stoppen
-    previewRenderer.stopRendering = () => {
-        isStillRendering = false;
-        if (animationFrameID) {
-            cancelAnimationFrame(animationFrameID);
-            animationFrameID = null;
-        }
-    };
+    document.body.appendChild(buttonGrid);
 }
 
 function generateScene(sceneObj) {
@@ -598,43 +471,48 @@ function generateScene(sceneObj) {
     let newScene = new THREE.Scene();
 
     let newCamera = new THREE.PerspectiveCamera(1, window.innerWidth / window.innerHeight, 0.1, 10000);
-    newCamera.position.set(0, 4, -80);
+    newCamera.position.set(0, window.innerWidth < 900 ? 30 : 10, window.innerWidth < 900 ? -90 : -60);
 
     newScene.add(new THREE.AmbientLight(0xffffff, 0.2));
-
-
 
     gltfLoader.load("/mesh/platform.glb", (gltf) => {
         platform = gltf.scene;
         platform.scale.set(0.5, 0.5, 0.5);  // Scale the model
-        platform.position.set(0, -0.6, 0);  // Position the model
+        platform.position.set(0, -0.5, 0);  // Position the model
         newScene.add(platform);
     });
+
 
     let newMesh;
     gltfLoader.load(sceneObj.meshRef, (gltf) => {
         newMesh = gltf.scene;
-        newMesh.scale.set(1, 1, 1);  // Scale the model
+        const s = sceneObj.scale ?? 1;
+        newMesh.scale.set(s, s, s);
         // Normalize X/Z pivot so imported models stay centered in the view.
         const box = new THREE.Box3().setFromObject(newMesh);
         const center = box.getCenter(new THREE.Vector3());
-        newMesh.position.set(-center.x, -0.475, -center.z);  // Position the model
+        const yOffset = sceneObj.yOffset ?? -0.475;
+        newMesh.position.set(-center.x, yOffset, -center.z);
         newScene.add(newMesh);
     });
 
     let spotLight = new THREE.SpotLight(0xffffff);
     spotLight.position.set(2, 2, 2);
-    spotLight.castShadow = true;
     spotLight.target.position.set(0, 0, 0);
-    spotLight.power = 100;
+    spotLight.power = 50;
     newScene.add(spotLight);
     newScene.add(spotLight.target);
+
+
+    let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    newScene.add(ambientLight);
 
     let newSequenceObj = {
         scene: newScene,
         camera: newCamera,
         text: sceneObj.text,
         meshRef: sceneObj.meshRef,
+        previewVideo: sceneObj.previewVideo,
         background: sceneObj.background,
         title: sceneObj.title,
         meshCaption: sceneObj.meshCaption,
@@ -646,24 +524,6 @@ function generateScene(sceneObj) {
 
     sequence.push(newSequenceObj);
 }
-
-
-// function showNextScene() {
-//     // Überspringe die Übersichtsszene bei der automatischen Rotation
-//     let nextID = currentSequenceObjectID + 1;
-//     if (nextID >= sequence.length || nextID === overviewSceneID) {
-//         nextID = 1;  // Gehe zu Scene 1 (erste echte 3D-Scene)
-//     }
-//     currentSequenceObjectID = nextID;
-//     setSceneText(sequence[currentSequenceObjectID].text);
-//     setSceneBackground(sequence[currentSequenceObjectID].background);
-//     controls.object = sequence[currentSequenceObjectID].camera;
-//     let buttonGrid = document.querySelector('.button-grid');
-//     if (buttonGrid) buttonGrid.remove();
-//     overviewTitle.style.display = 'none';
-//     overviewInfo.style.display = 'none';
-//     overviewButton.style.display = 'block';
-// }
 
 async function readJSON() {
     try {
@@ -681,7 +541,6 @@ async function readJSON() {
         let jsonSequence = [];
         jsonObject.objects.forEach(item => jsonSequence.push(item));
 
-        let currentSeqLength = sequence.length;
         for (let i = 0; i < jsonSequence.length; i++) {
             generateScene(jsonSequence[i]);
         }

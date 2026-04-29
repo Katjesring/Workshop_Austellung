@@ -17,6 +17,9 @@
 		}
 	</script>
 
+    <script>
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    </script>
     <script type="module" src="main.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -27,17 +30,33 @@
 </head>
 
 <body>
-    <div id="text-container"></div>
     <div id="content-container"></div>
 
-    <!-- Überschrift für Übersichtsseite -->
-    <h1 id="overview-title">Zeitkapsel</h1>
+    <!-- Überschrift + Viewer-Buttons -->
+    <div id="overview-header">
+        <div id="overview-header-top">
+            <h1 id="overview-title">ZEITKAPSEL</h1>
 
-    <!-- Info-Text für Übersichtsseite -->
-    <div id="overview-info">
-        Dieser Workshop erforscht die digitale Bewahrung von Erinnerungen und Momenten. 
-        Tauchen Sie ein in verschiedene 3D-Szenen und entdecken Sie die Geschichten hinter den Objekten.
+            <!-- Raum-Button für Vorraum-Viewer -->
+            <button id="room-button">
+                <img src="svg/Outdoor.svg" style="width:32px;height:32px;" alt="Outdoor" />
+            </button>
+
+            <!-- Baum-Button für Garten-Viewer -->
+            <button id="tree-button">
+                <img src="svg/Indoor.svg" style="width:32px;height:32px;" alt="Indoor" />
+            </button>
+        </div>
+
+        <!-- Info-Text für Übersichtsseite -->
+        <div id="overview-info">
+            Jede Kachel fungiert als kleine Zeitkapsel.
+            Im Workshop setzten wir uns mit Zukunftsfragen auseinander und hielten unsere Gedanken in Formen und Texten fest.
+            Jetzt werden diese Ideen digital und interaktiv bewahrt.
+        </div>
     </div>
+
+    
 
     <!-- Pfeile zur Navigation -->
     <button id="arrow-left" class="arrow">&lt;</button>
