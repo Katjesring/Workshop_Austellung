@@ -7,140 +7,111 @@
             "text": "",
             "background": "/background/background4.jpg",
             "scale": 2,
-            "yOffset": -0.37,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.37
 
         },
         {
             "meshRef": "/mesh/Amorph2.glb",
             "previewVideo": "/previewVideos/amorph2.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.2",
             "text": "",
             "background": "/background/background1.jpg",
             "scale": 3,
-            "yOffset": -0.37,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.37
 
         },
         {
             "meshRef": "/mesh/Leafhuman.glb",
             "previewVideo": "/previewVideos/leafhuman.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.3",
             "text": "",
             "background": "/background/background2.jpg",
             "scale": 1.5,
             "yOffset": -0.375,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "imageBild": "/images_bild/leafhuman.png"
 
         },
         {
             "meshRef": "/mesh/Hochofen.glb",
             "previewVideo": "/previewVideos/hochofen.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.4",
             "text": "",
             "background": "/background/background5.jpg",
             "scale": 2.2,
             "yOffset": -0.37,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "imageBild": "/images_bild/hochofen.png",
+            "imageText": "/images_text/hochofenbild.png"
 
         },
         {
             "meshRef": "/mesh/Coral.glb",
             "previewVideo": "/previewVideos/coral.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.5",
             "text": "",
             "background": "/background/background4.jpg",
             "scale": 2,
-            "yOffset": -0.37,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.37
 
         },
         {
             "meshRef": "/mesh/Lilflower.glb",
             "previewVideo": "/previewVideos/lilflower.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.6",
             "text": "",
             "background": "/background/background3.jpg",
             "scale": 2,
-            "yOffset": -0.37,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.37
 
         },
         {
             "meshRef": "/mesh/Froh.glb",
             "previewVideo": "/previewVideos/froh.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.7",
             "text": "",
             "background": "/background/background4.jpg",
             "scale": 3,
-            "yOffset": -0.395,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.395
 
         },
         {
             "meshRef": "/mesh/Planthouse.glb",
             "previewVideo": "/previewVideos/planthouse.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.8",
             "text": "",
             "background": "/background/background5.jpg",
             "scale": 3,
-            "yOffset": -0.375,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.375
 
         },
         {
             "meshRef": "/mesh/Fossil.glb",
             "previewVideo": "/previewVideos/fossil.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.9",
             "text": "",
             "background": "/background/background1.jpg",
             "scale": 3,
-            "yOffset": -0.39,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.39
 
         },
         {
             "meshRef": "/mesh/Modular.glb",
             "previewVideo": "/previewVideos/modular.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.10",
             "text": "",
             "background": "/background/background3.jpg",
             "scale": 2.5,
             "yOffset": -0.365,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "imageBild": "/images_bild/modular.png"
 
         },
         {
             "meshRef": "/mesh/Amorph.glb",
             "previewVideo": "/previewVideos/amorph.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.11",
             "text": "",
             "background": "/background/background2.jpg",
             "scale": 1.5,
-            "yOffset": -0.375,
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "yOffset": -0.375
 
         },
         
@@ -152,20 +123,16 @@
             "previewVideo": "/previewVideos/flowers.mp4",
             "scale": 1,
             "yOffset": -0.375,
-            "title": "WS.17.04.2",
+            "title": "WS.17.04.12",
             "text": "",
-            "background": "/background/background3.jpg",
-
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
+            "background": "/background/background3.jpg"
         },
         {
             "meshRef": "/mesh/towers.glb",
             "previewVideo": "/previewVideos/towers.mp4",
             "scale": 2,
             "yOffset": -0.375,
-            "title": "WS.17.04.3",
+            "title": "WS.17.04.13",
             "text": "",
             "background": "/background/background4.jpg"
         },
@@ -174,14 +141,14 @@
             "previewVideo": "/previewVideos/bigflower.mp4",
             "scale": 1,
             "yOffset": -0.4,
-            "title": "WS.17.04.4",
+            "title": "WS.17.04.14",
             "text": "",
             "background": "/background/background5.jpg"
         },
         {
             "meshRef": "/mesh/towers2.glb",
             "previewVideo": "/previewVideos/towers2.mp4",
-            "title": "WS.17.04.1",
+            "title": "WS.17.04.15",
             "text": "",
             "background": "/background/background2.jpg",
             "scale": 3,
@@ -196,7 +163,7 @@
             "previewVideo": "/previewVideos/reef.mp4",
             "scale": 4,
             "yOffset": -0.45,
-            "title": "WS.17.04.5",
+            "title": "WS.17.04.16",
             "text": "",
             "background": "/background/background1.jpg"
         }
