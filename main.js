@@ -219,8 +219,12 @@ function showOverview() {
 // Gibt die verfügbaren Views für eine Szene zurück
 function getViewsForScene(sceneObj) {
     let views = ['mesh'];
-    if (sceneObj && sceneObj.imageBild) views.push('imageBild');
-    if (sceneObj && sceneObj.imageText) views.push('imageText');
+    if (sceneObj && sceneObj.images && sceneObj.images.length > 0) {
+        sceneObj.images.forEach((_, i) => views.push(`image:${i}`));
+    } else {
+        if (sceneObj && sceneObj.imageBild) views.push('imageBild');
+        if (sceneObj && sceneObj.imageText) views.push('imageText');
+    }
     return views;
 }
 
@@ -300,7 +304,9 @@ function showView(index) {
     // Karten auf Grundzustand zurücksetzen (Bilder bleiben gecached, nur ausgeblendet)
     cardsTrack.querySelectorAll('.zeitkapsel-card').forEach(card => {
         card.classList.remove('active-card');
+
         card.querySelectorAll('img.view-image').forEach(img => { img.style.display = 'none'; });
+        card.querySelectorAll('.image-backdrop').forEach(backdrop => { backdrop.style.display = 'none'});
     });
 
     // Aktive Karte befüllen
@@ -318,10 +324,20 @@ function showView(index) {
     activeTitle.appendChild(overviewButton);
 
     // Caption
-    const captionKey = view === 'mesh' ? 'meshCaption' : view === 'imageBild' ? 'imageBildCaption' : view === 'imageText' ? 'imageTextCaption' : null;
-    if (captionKey && sceneObj[captionKey]) {
-        cardCaption.querySelector('.caption-heading').textContent = sceneObj[captionKey].heading;
-        cardCaption.querySelector('.caption-body').textContent = sceneObj[captionKey].body;
+    let captionData = null;
+    if (view === 'mesh' && sceneObj.meshCaption) {
+        captionData = sceneObj.meshCaption;
+    } else if (view.startsWith('image:')) {
+        const imgIndex = parseInt(view.split(':')[1]);
+        captionData = sceneObj.images[imgIndex].caption || null;
+    } else if (view === 'imageBild' && sceneObj.imageBildCaption) {
+        captionData = sceneObj.imageBildCaption;
+    } else if (view === 'imageText' && sceneObj.imageTextCaption) {
+        captionData = sceneObj.imageTextCaption;
+    }
+    if (captionData) {
+        cardCaption.querySelector('.caption-heading').textContent = captionData.heading || '';
+        cardCaption.querySelector('.caption-body').textContent = captionData.body || '';
         cardCaption.style.display = 'block';
     } else {
         cardCaption.style.display = 'none';
@@ -359,17 +375,25 @@ function showView(index) {
     } else {
         contentContainer.style.display = 'none';
         cardBox.style.backgroundImage = '';
-        // Bild-Element pro Karte/View einmalig erstellen und cachen statt jedes Mal neu zu laden
-        let imgEl = activeCard.querySelector(`img.view-image[data-view="${view}"]`);
-        if (!imgEl) {
-            imgEl = document.createElement('img');
-            imgEl.className = 'view-image';
-            imgEl.dataset.view = view;
-            imgEl.decoding = 'async';
-            imgEl.src = sceneObj[view];
-            cardBox.appendChild(imgEl);
+
+        let imgSrc;
+        if (view.startsWith('image:')) {
+            const imgIndex = parseInt(view.split(':')[1]);
+            imgSrc = sceneObj.images[imgIndex].src;
+        } else {
+            imgSrc = sceneObj[view];
         }
-        imgEl.style.display = 'block';
+
+        const backdropEl = document.createElement('img');
+        backdropEl.className = 'image-backdrop';
+        backdropEl.src = imgSrc;
+        backdropEl.alt = '';
+        cardBox.appendChild(backdropEl);
+
+        const imgEl = document.createElement('img');
+        imgEl.className = 'view-image';
+        imgEl.src = imgSrc;
+        cardBox.appendChild(imgEl);
     }
 
     // Karussell zur aktiven Karte verschieben + Overview-Button positionieren
@@ -525,6 +549,7 @@ function generateScene(sceneObj) {
         background: sceneObj.background,
         title: sceneObj.title,
         meshCaption: sceneObj.meshCaption,
+        images: sceneObj.images,
         imageBild: sceneObj.imageBild,
         imageBildCaption: sceneObj.imageBildCaption,
         imageText: sceneObj.imageText,

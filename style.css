@@ -380,7 +380,22 @@ body {
     display: block;
     width: 100%;
     height: 100%;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+}
+
+.image-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    filter: blur(28px);
+    transform: scale(1.15);
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
 }
 
 .view-dots {
