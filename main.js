@@ -219,8 +219,12 @@ function showOverview() {
 // Gibt die verfügbaren Views für eine Szene zurück
 function getViewsForScene(sceneObj) {
     let views = ['mesh'];
-    if (sceneObj && sceneObj.imageBild) views.push('imageBild');
-    if (sceneObj && sceneObj.imageText) views.push('imageText');
+    if (sceneObj && sceneObj.images && sceneObj.images.length > 0) {
+        sceneObj.images.forEach((_, i) => views.push(`image:${i}`));
+    } else {
+        if (sceneObj && sceneObj.imageBild) views.push('imageBild');
+        if (sceneObj && sceneObj.imageText) views.push('imageText');
+    }
     return views;
 }
 
@@ -302,6 +306,8 @@ function showView(index) {
         card.classList.remove('active-card');
         const img = card.querySelector('img.view-image');
         if (img) img.remove();
+        const backdrop = card.querySelector('.image-backdrop');
+        if (backdrop) backdrop.remove();
     });
 
     // Aktive Karte befüllen
@@ -319,10 +325,20 @@ function showView(index) {
     activeTitle.appendChild(overviewButton);
 
     // Caption
-    const captionKey = view === 'mesh' ? 'meshCaption' : view === 'imageBild' ? 'imageBildCaption' : view === 'imageText' ? 'imageTextCaption' : null;
-    if (captionKey && sceneObj[captionKey]) {
-        cardCaption.querySelector('.caption-heading').textContent = sceneObj[captionKey].heading;
-        cardCaption.querySelector('.caption-body').textContent = sceneObj[captionKey].body;
+    let captionData = null;
+    if (view === 'mesh' && sceneObj.meshCaption) {
+        captionData = sceneObj.meshCaption;
+    } else if (view.startsWith('image:')) {
+        const imgIndex = parseInt(view.split(':')[1]);
+        captionData = sceneObj.images[imgIndex].caption || null;
+    } else if (view === 'imageBild' && sceneObj.imageBildCaption) {
+        captionData = sceneObj.imageBildCaption;
+    } else if (view === 'imageText' && sceneObj.imageTextCaption) {
+        captionData = sceneObj.imageTextCaption;
+    }
+    if (captionData) {
+        cardCaption.querySelector('.caption-heading').textContent = captionData.heading || '';
+        cardCaption.querySelector('.caption-body').textContent = captionData.body || '';
         cardCaption.style.display = 'block';
     } else {
         cardCaption.style.display = 'none';
@@ -357,9 +373,24 @@ function showView(index) {
         document.body.appendChild(contentContainer);
         contentContainer.style.display = 'none';
         cardBox.style.backgroundImage = '';
+
+        let imgSrc;
+        if (view.startsWith('image:')) {
+            const imgIndex = parseInt(view.split(':')[1]);
+            imgSrc = sceneObj.images[imgIndex].src;
+        } else {
+            imgSrc = sceneObj[view];
+        }
+
+        const backdropEl = document.createElement('img');
+        backdropEl.className = 'image-backdrop';
+        backdropEl.src = imgSrc;
+        backdropEl.alt = '';
+        cardBox.appendChild(backdropEl);
+
         const imgEl = document.createElement('img');
         imgEl.className = 'view-image';
-        imgEl.src = sceneObj[view];
+        imgEl.src = imgSrc;
         cardBox.appendChild(imgEl);
     }
 
@@ -516,6 +547,7 @@ function generateScene(sceneObj) {
         background: sceneObj.background,
         title: sceneObj.title,
         meshCaption: sceneObj.meshCaption,
+        images: sceneObj.images,
         imageBild: sceneObj.imageBild,
         imageBildCaption: sceneObj.imageBildCaption,
         imageText: sceneObj.imageText,
