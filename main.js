@@ -297,11 +297,10 @@ function showView(index) {
 
     imageOverlay.style.display = 'flex';
 
-    // Alle Karten auf Grundzustand zurücksetzen
+    // Karten auf Grundzustand zurücksetzen (Bilder bleiben gecached, nur ausgeblendet)
     cardsTrack.querySelectorAll('.zeitkapsel-card').forEach(card => {
         card.classList.remove('active-card');
-        const img = card.querySelector('img.view-image');
-        if (img) img.remove();
+        card.querySelectorAll('img.view-image').forEach(img => { img.style.display = 'none'; });
     });
 
     // Aktive Karte befüllen
@@ -344,23 +343,33 @@ function showView(index) {
         });
     }
 
-    if (view === 'mesh') {
-        const bg = sequence[currentSequenceObjectID].background;
-        cardBox.style.backgroundImage = bg ? `url('${bg}')` : '';
+    // Canvas nur reparenten wenn nötig (vermeidet WebGL-Kontextverlust auf iOS)
+    if (contentContainer.parentElement !== cardBox) {
         cardBox.appendChild(contentContainer);
         contentContainer.style.position = 'absolute';
         contentContainer.style.inset = '0';
         contentContainer.style.zIndex = '1';
+    }
+
+    if (view === 'mesh') {
+        const bg = sequence[currentSequenceObjectID].background;
+        cardBox.style.backgroundImage = bg ? `url('${bg}')` : '';
         contentContainer.style.display = 'block';
         requestAnimationFrame(() => resizeRendererToBox(cardBox));
     } else {
-        document.body.appendChild(contentContainer);
         contentContainer.style.display = 'none';
         cardBox.style.backgroundImage = '';
-        const imgEl = document.createElement('img');
-        imgEl.className = 'view-image';
-        imgEl.src = sceneObj[view];
-        cardBox.appendChild(imgEl);
+        // Bild-Element pro Karte/View einmalig erstellen und cachen statt jedes Mal neu zu laden
+        let imgEl = activeCard.querySelector(`img.view-image[data-view="${view}"]`);
+        if (!imgEl) {
+            imgEl = document.createElement('img');
+            imgEl.className = 'view-image';
+            imgEl.dataset.view = view;
+            imgEl.decoding = 'async';
+            imgEl.src = sceneObj[view];
+            cardBox.appendChild(imgEl);
+        }
+        imgEl.style.display = 'block';
     }
 
     // Karussell zur aktiven Karte verschieben + Overview-Button positionieren
