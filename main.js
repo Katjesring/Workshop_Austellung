@@ -384,16 +384,30 @@ function showView(index) {
             imgSrc = sceneObj[view];
         }
 
-        const backdropEl = document.createElement('img');
-        backdropEl.className = 'image-backdrop';
-        backdropEl.src = imgSrc;
-        backdropEl.alt = '';
-        cardBox.appendChild(backdropEl);
+        // Backdrop und Bild pro Karte/View einmalig erstellen und cachen
+        // (vermeidet wiederholtes Decoding großer Bilder, das auf iOS zum App-Absturz führt)
+        let backdropEl = activeCard.querySelector(`img.image-backdrop[data-view="${view}"]`);
+        if (!backdropEl) {
+            backdropEl = document.createElement('img');
+            backdropEl.className = 'image-backdrop';
+            backdropEl.dataset.view = view;
+            backdropEl.decoding = 'async';
+            backdropEl.alt = '';
+            backdropEl.src = imgSrc;
+            cardBox.appendChild(backdropEl);
+        }
+        backdropEl.style.display = 'block';
 
-        const imgEl = document.createElement('img');
-        imgEl.className = 'view-image';
-        imgEl.src = imgSrc;
-        cardBox.appendChild(imgEl);
+        let imgEl = activeCard.querySelector(`img.view-image[data-view="${view}"]`);
+        if (!imgEl) {
+            imgEl = document.createElement('img');
+            imgEl.className = 'view-image';
+            imgEl.dataset.view = view;
+            imgEl.decoding = 'async';
+            imgEl.src = imgSrc;
+            cardBox.appendChild(imgEl);
+        }
+        imgEl.style.display = 'block';
     }
 
     // Karussell zur aktiven Karte verschieben + Overview-Button positionieren
