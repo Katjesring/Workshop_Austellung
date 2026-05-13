@@ -1,8 +1,8 @@
 {
     "objects": [
         {
-            "meshRef": "/mesh/Snail.glb",
-            "previewVideo": "/previewVideos/snail.mp4",
+            "meshRef": "/mesh/cleanstructure.glb",
+            "previewVideo": "/previewVideos/cleanstructure.mp4",
             "title": "WS.17.04.1",
             "text": "",
             "background": "/background/background4.jpg",
@@ -11,12 +11,122 @@
 
         },
         {
-            "meshRef": "/mesh/Amorph2.glb",
-            "previewVideo": "/previewVideos/amorph2.mp4",
-            "title": "WS.17.04.2",
+            "meshRef": "/mesh/banana.glb",
+            "previewVideo": "/previewVideos/banana.mp4",
+            "title": "WS.17.04.1",
             "text": "",
-            "background": "/background/background1.jpg",
-            "scale": 3,
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/wirbel.glb",
+            "previewVideo": "/previewVideos/wirbel.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/community.glb",
+            "previewVideo": "/previewVideos/community.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/solarsystem.glb",
+            "previewVideo": "/previewVideos/solarsystem.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/vortex.glb",
+            "previewVideo": "/previewVideos/vortex.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/portal.glb",
+            "previewVideo": "/previewVideos/portal.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/vivalavulva.glb",
+            "previewVideo": "/previewVideos/vivalavulva.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/pavillion.glb",
+            "previewVideo": "/previewVideos/pavillion.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/onewithnature.glb",
+            "previewVideo": "/previewVideos/onewithnature.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/magicmoth.glb",
+            "previewVideo": "/previewVideos/magicmoth.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/waermflasche.glb",
+            "previewVideo": "/previewVideos/waermflasche.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
+            "yOffset": -0.37
+
+        },
+        {
+            "meshRef": "/mesh/Snail.glb",
+            "previewVideo": "/previewVideos/snail.mp4",
+            "title": "WS.17.04.1",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "scale": 2,
             "yOffset": -0.37
 
         },
@@ -29,6 +139,16 @@
             "scale": 1.5,
             "yOffset": -0.375,
             "imageBild": "/images_bild/leafhuman.png"
+
+        },
+        {
+            "meshRef": "/mesh/Amorph2.glb",
+            "previewVideo": "/previewVideos/amorph2.mp4",
+            "title": "WS.17.04.2",
+            "text": "",
+            "background": "/background/background1.jpg",
+            "scale": 3,
+            "yOffset": -0.37
 
         },
         {
@@ -114,19 +234,6 @@
             "yOffset": -0.375
 
         },
-        
-
-
-
-        {
-            "meshRef": "/mesh/flowers.glb",
-            "previewVideo": "/previewVideos/flowers.mp4",
-            "scale": 1,
-            "yOffset": -0.375,
-            "title": "WS.17.04.12",
-            "text": "",
-            "background": "/background/background3.jpg"
-        },
         {
             "meshRef": "/mesh/towers.glb",
             "previewVideo": "/previewVideos/towers.mp4",
@@ -135,28 +242,6 @@
             "title": "WS.17.04.13",
             "text": "",
             "background": "/background/background4.jpg"
-        },
-        {
-            "meshRef": "/mesh/Bigflower.glb",
-            "previewVideo": "/previewVideos/bigflower.mp4",
-            "scale": 1,
-            "yOffset": -0.4,
-            "title": "WS.17.04.14",
-            "text": "",
-            "background": "/background/background5.jpg"
-        },
-        {
-            "meshRef": "/mesh/towers2.glb",
-            "previewVideo": "/previewVideos/towers2.mp4",
-            "title": "WS.17.04.15",
-            "text": "",
-            "background": "/background/background2.jpg",
-            "scale": 3,
-
-            "imageBild": "/images_bild/Bild1.jpg",
-
-            "imageText": "/images_text/Text2.png"
-
         },
         {
             "meshRef": "/mesh/reef.glb",
