@@ -1,126 +1,6 @@
 {
     "objects": [
         {
-            "meshRef": "/mesh/cleanstructure.glb",
-            "previewVideo": "/previewVideos/cleanstructure.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/banana.glb",
-            "previewVideo": "/previewVideos/banana.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/wirbel.glb",
-            "previewVideo": "/previewVideos/wirbel.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/community.glb",
-            "previewVideo": "/previewVideos/community.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/solarsystem.glb",
-            "previewVideo": "/previewVideos/solarsystem.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/vortex.glb",
-            "previewVideo": "/previewVideos/vortex.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/portal.glb",
-            "previewVideo": "/previewVideos/portal.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/vivalavulva.glb",
-            "previewVideo": "/previewVideos/vivalavulva.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/pavillion.glb",
-            "previewVideo": "/previewVideos/pavillion.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/onewithnature.glb",
-            "previewVideo": "/previewVideos/onewithnature.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/magicmoth.glb",
-            "previewVideo": "/previewVideos/magicmoth.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
-            "meshRef": "/mesh/waermflasche.glb",
-            "previewVideo": "/previewVideos/waermflasche.mp4",
-            "title": "WS.17.04.1",
-            "text": "",
-            "background": "/background/background4.jpg",
-            "scale": 2,
-            "yOffset": -0.37
-
-        },
-        {
             "meshRef": "/mesh/Snail.glb",
             "previewVideo": "/previewVideos/snail.mp4",
             "title": "WS.17.04.1",
@@ -251,6 +131,125 @@
             "title": "WS.17.04.16",
             "text": "",
             "background": "/background/background1.jpg"
+        },
+        {
+            "meshRef": "/mesh/banana.glb",
+            "previewVideo": "/previewVideos/banana.mp4",
+            "scale": 2,
+            "yOffset": -0.365,
+            "title": "WS.03.05.1",
+            "text": "",
+            "background": "/background/background3.jpg",
+            "imageBild": "/images_bild/banana.jpeg"
+        },
+        {
+            "meshRef": "/mesh/cleanstructure.glb",
+            "previewVideo": "/previewVideos/cleanstructure.mp4",
+            "scale": 1.5,
+            "yOffset": -0.37,
+            "title": "WS.03.05.2",
+            "text": "",
+            "background": "/background/background5.jpg",
+            "imageBild": "/images_bild/cleanstructure.jpeg"
+        },
+        {
+            "meshRef": "/mesh/community.glb",
+            "previewVideo": "/previewVideos/community.mp4",
+            "scale": 1.5,
+            "yOffset": -0.37,
+            "title": "WS.03.05.3",
+            "text": "",
+            "background": "/background/background3.jpg",
+            "imageBild": "/images_bild/community.jpeg"
+        },
+        {
+            "meshRef": "/mesh/magicmoth.glb",
+            "previewVideo": "/previewVideos/magicmoth.mp4",
+            "scale": 1.5,
+            "yOffset": -0.375,
+            "title": "WS.03.05.4",
+            "text": "",
+            "background": "/background/background1.jpg",
+            "imageBild": "/images_bild/magicmoth.jpeg"
+        },
+        {
+            "meshRef": "/mesh/onewithnature.glb",
+            "previewVideo": "/previewVideos/onewithnature.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.5",
+            "text": "",
+            "background": "/background/background2.jpg",
+            "imageBild": "/images_bild/onewithnature.png"
+        },
+        {
+            "meshRef": "/mesh/pavillion.glb",
+            "previewVideo": "/previewVideos/pavillion.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.6",
+            "text": "",
+            "background": "/background/background4.jpg",
+            "imageBild": "/images_bild/pavillion.jpeg"
+        },
+        {
+            "meshRef": "/mesh/portal.glb",
+            "previewVideo": "/previewVideos/portal.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.7",
+            "text": "",
+            "background": "/background/background1.jpg",
+            "imageBild": "/images_bild/portal.jpeg"
+        },
+        {
+            "meshRef": "/mesh/solarsystem.glb",
+            "previewVideo": "/previewVideos/solarsystem.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.8",
+            "text": "",
+            "background": "/background/background5.jpg",
+            "imageBild": "/images_bild/solarsystem.jpeg"
+        },
+        {
+            "meshRef": "/mesh/vivalavulva.glb",
+            "previewVideo": "/previewVideos/vivalavulva.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.9",
+            "text": "",
+            "background": "/background/background2.jpg",
+            "imageBild": "/images_bild/vivalavulva.jpeg"
+        },
+        {
+            "meshRef": "/mesh/vortex.glb",
+            "previewVideo": "/previewVideos/vortex.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.10",
+            "text": "",
+            "background": "/background/background2.jpg",
+            "imageBild": "/images_bild/vortex.jpeg"
+        },
+        {
+            "meshRef": "/mesh/waermflasche.glb",
+            "previewVideo": "/previewVideos/waermflasche.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.11",
+            "text": "",
+            "background": "/background/background3.jpg",
+            "imageBild": "/images_bild/waermflasche.jpeg"
+        },
+        {
+            "meshRef": "/mesh/wirbel.glb",
+            "previewVideo": "/previewVideos/wirbel.mp4",
+            "scale": 1.5,
+            "yOffset": -0.360,
+            "title": "WS.03.05.12",
+            "text": "",
+            "background": "/background/background4.jpg"
         }
         
     ]
