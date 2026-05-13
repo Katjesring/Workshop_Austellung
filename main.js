@@ -61,19 +61,19 @@ async function init() {
     overviewTitle.style.display = 'block';
     overviewInfo.style.display = 'flex';
     overviewButton.style.display = 'none';
-    treeButton.style.display = 'flex';
-    roomButton.style.display = 'flex';
+    if (treeButton) treeButton.style.display = 'flex';
+    if (roomButton) roomButton.style.display = 'flex';
 
     // Click-Handler für Übersicht-Button
     overviewButton.addEventListener('click', (e) => { e.stopPropagation(); showOverview(); });
 
     // Klick auf Baum-Button leitet auf Garten-Unterseite weiter
-    treeButton.addEventListener('click', () => {
+    treeButton?.addEventListener('click', () => {
         window.location.href = '/tree';
     });
 
     // Klick auf Raum-Button leitet auf Vorraum-Unterseite weiter
-    roomButton.addEventListener('click', () => {
+    roomButton?.addEventListener('click', () => {
         window.location.href = '/room';
     });
 
@@ -211,8 +211,8 @@ function showOverview() {
     overviewInfo.style.display = 'flex';
     arrowLeft.style.display = 'none';
     arrowRight.style.display = 'none';
-    treeButton.style.display = 'flex';
-    roomButton.style.display = 'flex';
+    if (treeButton) treeButton.style.display = 'flex';
+    if (roomButton) roomButton.style.display = 'flex';
     if (imageOverlay) imageOverlay.style.display = 'none';
 }
 
@@ -258,7 +258,7 @@ function showView(index) {
 
             const cardTitle = document.createElement('div');
             cardTitle.className = 'card-title';
-            cardTitle.innerHTML = sequence[i].title ? `<strong>ZEITKAPSEL</strong> – ${sequence[i].title}` : '<strong>ZEITKAPSEL</strong>';
+            cardTitle.innerHTML = sequence[i].title ? `<strong>ZEITKAPSEL</strong>  ${sequence[i].title}` : '<strong>ZEITKAPSEL</strong>';
             cardTitle.style.cursor = 'pointer';
             cardTitle.addEventListener('click', (e) => {
                 if (parseInt(card.dataset.scene) === currentSequenceObjectID) {
@@ -501,8 +501,8 @@ function updateOverviewButtons() {
             overviewTitle.style.display = 'none';  // Verstecke Überschrift
             overviewInfo.style.display = 'none';  // Verstecke Info-Text
             overviewButton.style.display = 'block';  // Zeige Home-Button
-            treeButton.style.display = 'none';
-            roomButton.style.display = 'none';
+            if (treeButton) treeButton.style.display = 'none';
+            if (roomButton) roomButton.style.display = 'none';
             currentViewIndex = 0;
             updateArrows();
             showView(0);
